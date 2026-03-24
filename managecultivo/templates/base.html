@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Planeacion Agroplan{% endblock %}</title>
+    {% load static %}
+    <!-- Tailwind por CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tu CSS personalizado -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Fuente Share Tech Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Navbar -->
+     {% block navbar %}
+    <nav class="bg-blue-600 p-4 text-white flex justify-between">
+        <ul class="flex space-x-4">
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'logout' %}" class="hover:underline">Salir</a></li>
+            {% else %}
+                <li><a href="{% url 'home' %}" class="hover:underline">Inicio</a></li>
+                <li><a href="{% url 'login' %}" class="hover:underline">Login</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endblock %}
+    <!-- Contenido dinámico -->
+    <div class="container mx-auto p-6">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-blue-600 text-white text-center p-4 mt-6">
+        <p>© 2026 Ciclo Agricola - Mi planeador</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+{% extends "base_dashboard.html" %}
+
+{% block subnavbar_title %}Menu Crear Personal{% endblock %}
+
+{% block dashboard_content %}
+
+<h2 class="text-xl font-semibold mb-4">Personal registrado</h2>
+<table class="w-full bg-white shadow rounded">
+    <tr><th>Cédula</th><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Rol</th><th>Acciones</th></tr>
+    {% for persona in personas %}
+    <tr>
+        <td>{{ persona.id_cedula }}</td>
+        <td>{{ persona.nombre }}</td>
+        <td>{{ persona.telefono }}</td>
+        <td>{{ persona.email }}</td>
+        <td>{{ persona.rol }}</td>
+        <td>
+            <button type="button"
+                    onclick="document.getElementById('modalEditar{{ persona.pk }}').classList.remove('hidden')"
+                    class="bg-yellow-500 text-white px-3 py-1 rounded">
+                Editar
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- Botón Crear -->
+<div class="mt-4">
+    <button type="button"
+            onclick="document.getElementById('modalCrear').classList.remove('hidden')"
+            class="bg-blue-600 text-white px-4 py-2 rounded">
+        Crear Personal
+    </button>
+</div>
+
+<!-- Modal Crear -->
+<div id="modalCrear" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h2 class="text-xl font-bold mb-4">Crear Personal</h2>
+    <form method="post">
+      {% csrf_token %}
+      <strong>Cédula:</strong>
+      <input type="text" name="id_cedula" class="border rounded px-3 py-2 w-full mb-2" required>
+      <strong>Nombre:</strong>
+      <input type="text" name="nombre" class="border rounded px-3 py-2 w-full mb-2" required>
+      <strong>Teléfono:</strong>
+      <input type="text" name="telefono" class="border rounded px-3 py-2 w-full mb-2">
+      <strong>Email:</strong>
+      <input type="email" name="email" class="border rounded px-3 py-2 w-full mb-2">
+      <strong>Rol:</strong>
+      <select name="rol" class="border rounded px-3 py-2 w-full mb-2">
+        <option value="Agricultor">Agricultor</option>
+        <option value="Fumigador">Fumigador</option>
+        <option value="Recolector">Recolector</option>
+        <option value="Varios">Varios</option>
+      </select>
+      <button type="submit" name="crear_personal" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar</button>
+      <button type="button" onclick="document.getElementById('modalCrear').classList.add('hidden')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Editar -->
+{% for persona in personas %}
+<div id="modalEditar{{ persona.pk }}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h2 class="text-xl font-bold mb-4">Editar Personal</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="persona_id" value="{{ persona.pk }}">
+      <strong>Cédula:</strong>
+      <input type="text" value="{{ persona.id_cedula }}" disabled class="border rounded px-3 py-2 w-full mb-2">
+      <strong>Nombre:</strong>
+      <input type="text" name="nombre" value="{{ persona.nombre }}" class="border rounded px-3 py-2 w-full mb-2" required>
+      <strong>Teléfono:</strong>
+      <input type="text" name="telefono" value="{{ persona.telefono }}" class="border rounded px-3 py-2 w-full mb-2">
+      <strong>Email:</strong>
+      <input type="email" name="email" value="{{ persona.email }}" class="border rounded px-3 py-2 w-full mb-2">
+      <strong>Rol:</strong>
+      <select name="rol" class="border rounded px-3 py-2 w-full mb-2">
+        <option value="Agricultor" {% if persona.rol == "Agricultor" %}selected{% endif %}>Agricultor</option>
+        <option value="Fumigador" {% if persona.rol == "Fumigador" %}selected{% endif %}>Fumigador</option>
+        <option value="Recolector" {% if persona.rol == "Recolector" %}selected{% endif %}>Recolector</option>
+        <option value="Varios" {% if persona.rol == "Varios" %}selected{% endif %}>Varios</option>
+      </select>
+      <button type="submit" name="editar_personal" class="bg-yellow-500 text-white px-4 py-2 rounded">Guardar cambios</button>
+      <button type="button" onclick="document.getElementById('modalEditar{{ persona.pk }}').classList.add('hidden')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+    </form>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,347 @@
+{% extends "base_dashboard.html" %}
+
+{% block subnavbar_title %}Asignar Citas{% endblock %}
+
+{% block dashboard_content %}
+
+<h2 class="text-xl font-semibold mb-4">Calendario</h2>
+
+<!-- Navegación entre semanas -->
+<div class="flex justify-between items-center mb-4">
+  <form method="post" class="flex space-x-2"> 
+    {% csrf_token %}
+    <input type="hidden" name="base_fecha" value="{{ fecha_seleccionada|date:'Y-m-d' }}">
+    
+    <button type="submit" name="semana_anterior"
+            class="px-3 py-1 bg-gray-300 rounded">&lt;</button>
+    <span class="text-sm">{{ semana }}</span>
+    
+    <button type="submit" name="semana_siguiente"
+            class="px-3 py-1 bg-gray-300 rounded">&gt;</button>
+  </form>
+</div>
+
+  <!-- Cuacricula para fecha y horas del Calendario -->
+<div class="flex flex-row space-x-6 w-full max-w-7xl">
+
+  <!-- Columna 1: Calendario -->
+  <div class="flex-1">
+    <table class="table-auto border-collapse border w-full text-sm">
+      <thead>
+        <tr>
+          <th class="border px-4 py-2 bg-gray-200">Hora</th>
+          {% for d in dias_semana %}
+            <th class="border px-4 py-2 bg-gray-200">{{ d|date:"D d/m" }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in tabla_renderizada %}
+          <tr>
+            <td class="border px-4 py-2 font-semibold">{{ fila.hora }}</td>
+            <!--Busca cuales estan ocupadas de la tabla Agendacita -->
+            {% for celda in fila.celdas %}
+              {% if celda.ocupada %}
+                <td class="border px-2 py-1 text-center {% if celda.estado == 'cancelada' %}bg-gray-300{% else %}bg-red-200{% endif %}">
+                  <button type="button"
+                          class="w-full h-full cursor-pointer"
+                          data-cliente="{{ celda.cliente }}"
+                          data-correo="{{ celda.correo }}"
+                          data-telefono="{{ celda.telefono }}"
+                          data-servicio="{{ celda.servicio }}"
+                          data-observaciones="{{ celda.observaciones }}"
+                          data-estado="{{ celda.estado }}"
+                          data-cita-id="{{ celda.cita_id }}"
+                          onclick="abrirModalCita(this)">
+                    {{ celda.cliente }}<br>{{ celda.servicio }}
+                  </button>
+                </td>
+              {% else %}
+                <td class="border px-2 py-1 text-center cursor-pointer hover:bg-blue-50 celda"
+                    data-dia="{{ celda.dia|date:'Y-m-d' }}" data-hora="{{ celda.hora }}">
+                </td>
+              {% endif %}
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Columna 2: Formulario lateral -->
+  <form method="post" onsubmit="return validar_crear_cita(this)">      
+    {% csrf_token %}
+    <h2 class="text-lg font-bold mb-4">Crear cita</h2>
+
+    <input type="hidden" name="dia" id="campo-dia">
+    <input type="hidden" name="hora" id="campo-hora">
+
+    <label for= "campo-fecha-hora" class="block text-sm mb-1">Fecha y Hora</label>
+    <input type="text" id="campo-fecha-hora" readonly class="border rounded w-full px-2 py-1 mb-3">
+
+    <!-- Botón Cliente -->
+    <button type="button" onclick="abrirModalCliente()"
+            class="bg-blue-600 text-white px-3 py-2 rounded w-full mb-3">
+      Seleccionar Cliente
+    </button>
+
+    <div id="datosCliente" class="mt-2 p-2 border rounded bg-gray-50">
+      {% if cliente %}
+        <p><strong>{{ cliente.cli_nombre }}</strong> ({{ cliente.cli_cedula }})</p>
+        <input type="hidden" name="cliente_id" value="{{ cliente.id  }}">
+      {% endif %}
+    </div>
+
+    <!-- Combo Box Servicio -->
+    <label for="servicio_id" class="block text-sm mb-1">Servicio</label>
+    <select name="servicio_id" class="border rounded w-full px-2 py-1 mb-3">
+      {% for s in servicios %}
+        <option value="{{ s.codigo }}">{{ s }}</option>
+      {% endfor %}
+    </select>
+    <!-- Observaciones -->
+    <label for="observaciones" class="block text-sm mb-1">Observaciones</label>
+    <textarea name="observaciones" class="border rounded w-full px-2 py-1 mb-3"></textarea>
+
+    <!-- Boton Guardar Cita -->
+    <button type="submit" name="guardar_cita"
+            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded w-full">
+            Guardar cita
+    </button>
+  </form>
+</div>
+
+<!-- Modal de información de cita -->
+<div id="modalCita" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+  <div class="bg-white rounded shadow-lg p-6 w-96">
+    <h2 class="text-xl font-bold mb-4">Información de la cita</h2>
+    <p><strong>Cliente:</strong> <span id="modalCitaCliente"></span></p>
+    <p><strong>Correo:</strong> <span id="modalCitaCorreo"></span></p>
+    <p><strong>Teléfono:</strong> <span id="modalCitaTelefono"></span></p>
+    <p><strong>Servicio:</strong> <span id="modalCitaServicio"></span></p>
+    <p><strong>Observaciones:</strong> <span id="modalCitaObservaciones"></span></p>
+    <p><strong>Estado:</strong> <span id="modalCitaEstado"></span></p>
+
+    <div class="mt-4 flex justify-end space-x-2">
+      <form id="formCancelar" method="post">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded">Cancelar Cita</button>
+      </form>
+      <button onclick="cerrarModalCita()" class="bg-gray-400 text-white px-4 py-2 rounded">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Funciones de modal Cita -->
+<script>
+function abrirModalCita(celda) {
+  document.getElementById("modalCitaCliente").textContent = celda.dataset.cliente;
+  document.getElementById("modalCitaCorreo").textContent = celda.dataset.correo;
+  document.getElementById("modalCitaTelefono").textContent = celda.dataset.telefono;
+  document.getElementById("modalCitaServicio").textContent = celda.dataset.servicio;
+  document.getElementById("modalCitaObservaciones").textContent = celda.dataset.observaciones;
+  document.getElementById("modalCitaEstado").textContent = celda.dataset.estado;
+
+  document.getElementById("formCancelar").action = `/citas/${celda.dataset.citaId}/cancelar/`;
+
+  document.getElementById("modalCita").classList.remove("hidden");
+}
+
+
+function cerrarModalCita() {
+  document.getElementById("modalCita").classList.add("hidden");
+}
+
+function validar_crear_cita(form) {
+  //alert("entro a validar");  
+  const dia = form.dia.value.trim();
+  const hora = form.hora.value.trim();
+  const cliente = form.cliente_id ? form.cliente_id.value.trim() : "";
+  const servicio = form.servicio_id.value.trim();
+
+  if (!dia || !hora || !cliente || !servicio) {
+    alert("Todos los campos son obligatorios <validar_crear_cita>");
+    return false; // cancela el POST
+  }
+
+  return true; // permite el POST
+}
+
+</script>
+
+<!-- Modal Crear Cliente -->
+<div id="modalCliente" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h2 class="text-xl font-bold mb-4">Cliente</h2>
+    
+    <label for="cedula" class="block mb-2 font-semibold">Identificación:</label>
+    <div class="flex space-x-2 mb-2">
+      <input type="text" id="cedula" name = "cli_cedula" placeholder="Cédula"
+             class="border rounded px-3 py-2 flex-1" required>
+      <button type="button" id="btnBuscarCliente"  
+              class="bg-blue-600 text-white px-4 py-2 rounded">Buscar</button>
+    </div>
+    
+    <label for="cli_tipdocumento" class="block mb-2 font-semibold">Tipo de Documento:</label>
+    <select id="cli_tipdocumento" name = "cli_tipdocumento" class="border rounded px-3 py-2 w-full mb-2">
+      <option value="Nit">Nit</option>
+      <option value="Cedula">Cedula</option>
+    </select>
+
+    <label for="nombre" class="block mb-2 font-semibold">Nombre:</label>
+    <input type="text" id="nombre" name="cli_nombre" placeholder="Nombre" class="border rounded px-3 py-2 w-full mb-2" required>
+
+    <label for="telefono"class="block mb-2 font-semibold">Teléfono:</label>
+    <input type="text" id="telefono" name="cli_telefono" placeholder="Teléfono" class="border rounded px-3 py-2 w-full mb-2" required>
+
+    <label for="email" class="block mb-2 font-semibold">E-mail:</label>
+    <input type="email" id="email" name="cli_email" placeholder="Email" class="border rounded px-3 py-2 w-full mb-2" required>
+
+    <button type="button" id="btnGuardarCliente" 
+            class="bg-green-600 text-white px-4 py-2 rounded w-full mb-2">Guardar</button>
+    <button type="button" id="btnCerrarModalCliente"  
+            class="bg-gray-400 text-white px-4 py-2 rounded w-full">Cerrar</button>
+  </div>
+</div>
+
+<!-- Funciones de modal Clientes-->
+<script>
+
+// --- Asignar eventos a botones ---
+  document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("btnBuscarCliente").addEventListener("click", buscarCliente);
+  document.getElementById("btnGuardarCliente").addEventListener("click", guardarCliente);
+  document.getElementById("btnCerrarModalCliente").addEventListener("click", cerrarModalCliente);
+});
+
+// --- Funciones de modal ---
+function abrirModalCliente() {
+  document.getElementById("modalCliente").classList.remove("hidden");
+}
+
+function cerrarModalCliente() {
+  document.getElementById("modalCliente").classList.add("hidden");
+}
+
+// --- Buscar cliente ---
+function buscarCliente() {
+  const cedula = document.getElementById("cedula").value;
+  if (!cedula) {
+    alert("Ingrese una cédula");
+    return;
+  }
+
+  fetch(`/api/buscacliente/${cedula}/`)
+    .then(response => {
+      if (!response.ok) throw new Error("No existe");
+      return response.json();
+    })
+    .then(data => {
+      document.getElementById("cli_tipdocumento").value = data.cli_tipdocumento;
+      document.getElementById("nombre").value = data.cli_nombre;
+      document.getElementById("telefono").value = data.cli_telefono;
+      document.getElementById("email").value = data.cli_email;
+    })
+    .catch(() => {
+      alert("Cliente no existe, por favor ingrese los datos.");
+      document.getElementById("cli_tipdocumento").value = "";      
+      document.getElementById("nombre").value = "";
+      document.getElementById("telefono").value = "";
+      document.getElementById("email").value = "";
+    });
+}
+
+
+
+// --- Validar que la informacion de MOdal cliente este completa---
+function validarCliente() {
+  const cedula = document.getElementById("cedula").value.trim();
+  const nombre = document.getElementById("nombre").value.trim();
+  const telefono = document.getElementById("telefono").value.trim();
+  const email = document.getElementById("email").value.trim();
+
+  if (!cedula || !nombre || !telefono || !email) {
+    alert("Todos los campos son obligatorios");
+    return false;
+  }
+
+  // Validar email más simple
+  if (!email.includes("@") || !email.includes(".")) {
+    alert("El correo electrónico no es válido");
+    return false;
+  }
+
+  return true;
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function guardarCliente() {
+  if (!validarCliente()) return; // si falla, no guarda
+
+  const formData = new FormData();
+  formData.append("cli_tipdocumento", document.getElementById("cli_tipdocumento").value);
+  formData.append("cli_cedula", document.getElementById("cedula").value);
+  formData.append("cli_nombre", document.getElementById("nombre").value);
+  formData.append("cli_telefono", document.getElementById("telefono").value);
+  formData.append("cli_email", document.getElementById("email").value);
+
+  const csrftoken = getCookie("csrftoken");
+
+  fetch("/api/guardar_cliente/", {
+    method: "POST",
+    headers: { "X-CSRFToken": csrftoken },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.errors) {
+      alert("Error: " + JSON.stringify(data.errors));
+      return;
+    }
+    const datosDiv = document.getElementById("datosCliente");
+    datosDiv.innerHTML = `
+      <p><strong>${data.nombre}</strong> (${data.cedula})</p>
+      <input type="hidden" name="cliente_id" value="${data.id}">
+    `;
+    cerrarModalCliente();
+  });
+}
+</script>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const celdas = document.querySelectorAll(".celda");
+    const campoDia = document.getElementById("campo-dia");
+    const campoHora = document.getElementById("campo-hora");
+    const campoFechaHora = document.getElementById("campo-fecha-hora");
+
+    celdas.forEach(celda => {
+      celda.addEventListener("click", () => {
+        campoDia.value = celda.dataset.dia;
+        campoHora.value = celda.dataset.hora;
+        campoFechaHora.value = celda.dataset.dia + " " + celda.dataset.hora;
+
+        celdas.forEach(c => c.classList.remove("bg-blue-200"));
+        celda.classList.add("bg-blue-200");
+      });
+    });
+  });
+</script>
+
+{% endblock %}

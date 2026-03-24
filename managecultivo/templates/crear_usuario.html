@@ -1,0 +1,142 @@
+{% extends "base_dashboard.html" %}
+
+{% block subnavbar_title %}Menu Crear Usuarios{% endblock %}
+
+{% block dashboard_content %}
+
+<h2 class="text-xl font-semibold mb-4">Usuarios existentes</h2>
+<table class="w-full bg-white shadow rounded">
+    <tr><th>Nombre</th><th>Email</th><th>Grupo</th><th>Acciones</th></tr>
+    {% for usuario in usuarios %}
+    <tr>
+        <td>{{ usuario.username }}</td>
+        <td>{{ usuario.email }}</td>
+        <td>
+            {% if usuario.groups.all %}
+                {{ usuario.groups.first.name }}
+            {% else %}
+                Sin grupo
+            {% endif %}
+        </td>
+        <td>
+            <!-- Botón Editar -->
+            <button type="button"
+                    onclick="document.getElementById('modalEditar{{ usuario.id }}').classList.remove('hidden')"
+                    class="bg-yellow-500 text-white px-3 py-1 rounded">
+                Editar
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- Botón Crear -->
+<div class="mt-4">
+    <button type="button"
+            onclick="document.getElementById('modalCrear').classList.remove('hidden')"
+            class="bg-blue-600 text-white px-4 py-2 rounded">
+        Crear Usuario
+    </button>
+</div>
+
+<!-- Modal Crear -->
+<div id="modalCrear" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h2 class="text-xl font-bold mb-4">Crear Usuario</h2>
+    <form method="post" onsubmit="return validar_crear(this)">
+      {% csrf_token %}  
+      <strong>Usuario:</strong>                      
+      <input type="text" name="username" placeholder="Usuario" class="border rounded px-3 py-2 w-full mb-2" required>
+      <strong>E-mail:</strong>                            
+      <input type="email" name="email" placeholder="Email" class="border rounded px-3 py-2 w-full mb-2" required>
+      <strong>Clave:</strong>                            
+      <input type="password" name="password" placeholder="Contraseña" class="border rounded px-3 py-2 w-full mb-2" required>
+      <strong>Grupo:</strong>                            
+      <select name="group" class="border rounded px-3 py-2 w-full mb-2">
+        <option value="Administrador">Administrador</option>
+        <option value="Vendedor">Vendedor</option>
+        <option value="Veterinario">Veterinario</option>
+      </select>
+      <button type="submit" name="crear_usuario" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar</button>
+      <button type="button" onclick="document.getElementById('modalCrear').classList.add('hidden')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Editar (uno por usuario) -->
+{% for usuario in usuarios %}
+<div id="modalEditar{{ usuario.id }}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h2 class="text-xl font-bold mb-4">Editar Usuario</h2>
+    <form method="post" onsubmit="return validar_editar(this)">
+      {% csrf_token %}
+      <strong>Usuario:</strong>                            
+      <input type="hidden" name="usuario_id" value="{{ usuario.id }}">
+      <input type="text" value="{{ usuario.username }}" disabled class="border rounded px-3 py-2 w-full mb-2" required>
+      <strong>E-mail:</strong>                            
+      <input type="email" name="email" value="{{ usuario.email }}" class="border rounded px-3 py-2 w-full mb-2" required>
+      <strong>Grupo:</strong>                                  
+      <select name="group" class="border rounded px-3 py-2 w-full mb-2">
+        <option value="Administrador" {% if usuario.groups.first.name == "Administrador" %}selected{% endif %}>Administrador</option>
+        <option value="Vendedor" {% if usuario.groups.first.name == "Vendedor" %}selected{% endif %}>Vendedor</option>
+        <option value="Veterinario" {% if usuario.groups.first.name == "Veterinario" %}selected{% endif %}>Veterinario</option>
+      </select>
+      <button type="submit" name="editar_usuario" class="bg-yellow-500 text-white px-4 py-2 rounded">Guardar cambios</button>
+      <button type="button" onclick="document.getElementById('modalEditar{{ usuario.id }}').classList.add('hidden')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+    </form>
+  </div>
+</div>
+{% endfor %}
+<script>
+function validar_crear(form) {
+  const username = form.username.value.trim();
+  const email = form.email.value.trim();
+  const password = form.password.value.trim();
+  const group = form.group.value.trim();
+
+
+  // Validar campos vacíos
+  if (!username || !email || !password || !group) {
+    alert("Todos los campos son obligatorios");
+    return false; // detiene el envío
+  }
+
+  // Validar formato de email
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regexEmail.test(email)) {
+    alert("El correo electrónico no es válido");
+    return false;
+  }
+
+  // Validar longitud de contraseña
+  if (password.length < 6) {
+    alert("La contraseña debe tener al menos 6 caracteres");
+    return false;
+  }
+
+  return true; // pasa la validación y permite enviar
+}
+</script>
+<script>
+function validar_editar(form) {
+  const email = form.email.value.trim();
+  const group = form.group.value.trim();
+
+  // Validar campos vacíos
+  if (!email || !group) {
+    alert("El email y el grupo son obligatorios");
+    return false;
+  }
+
+  // Validar formato de email
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regexEmail.test(email)) {
+    alert("El correo electrónico no es válido");
+    return false;
+  }
+
+  return true; // pasa la validación
+}
+</script>
+
+{% endblock %}

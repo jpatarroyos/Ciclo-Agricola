@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load grupos %}
+{% load static %}
+
+{% block navbar %}
+<nav class="bg-blue-600 p-4 text-white flex justify-between">
+  <ul class="flex space-x-6">
+    {% if user.is_authenticated %}
+        <!-- Menú privado según grupo -->
+        {% if user|has_group:"Administrador" %}
+            <li class="group relative">
+                <span class="cursor-pointer">Admin ▾</span>
+                <ul class="absolute hidden group-hover:block bg-blue-700 p-2 rounded">
+                    <li><a href="{% url 'crear_usuario' %}" class="block whitespace-nowrap px-2 py-1 hover:bg-blue-800">Crear Usuarios</a></li>
+                </ul>
+            </li>
+            <!-- Menú Cultivo -->
+            <li class="group relative">
+                <span class="cursor-pointer">General ▾</span>
+                <ul class="absolute hidden group-hover:block bg-blue-700 p-2 rounded">
+                    <li><a href="#" class="block whitespace-nowrap px-2 py-1 hover:bg-blue-800">Crear Cultivo / Actividad / insumo</a></li>                                        
+                    <li><a href="#" class="block whitespace-nowrap px-2 py-1 hover:bg-blue-800">Compra insumo</a></li>                                                            
+                    <li><a href="{% url 'crear_personal' %}" class="block whitespace-nowrap px-2 py-1 hover:bg-blue-800">Crer Personal</a></li>                                                            
+                    <li><a href="{% url 'crear_zonaagricola' %}" class="block whitespace-nowrap px-2 py-1 hover:bg-blue-800">Crear zona Agricola</a></li>                                        
+                </ul>
+            </li>            
+            <!-- Menú programar -->
+            <li class="group relative">
+                <span class="cursor-pointer">Programar ▾</span>
+                <ul class="absolute hidden group-hover:block bg-blue-700 p-2 rounded">
+                    <li><a href="#" class="block whitespace-nowrap px-2 py-1 hover:bg-blue-800">Crear Ciclo</a></li>                                        
+                </ul>
+            </li>  
+            <!-- Menú  -->
+            <li class="group relative">
+                <span class="cursor-pointer">Consulta ▾</span>
+                <ul class="absolute hidden group-hover:block bg-blue-700 p-2 rounded">
+                    <li><a href="#" class="block whitespace-nowrap px-2 py-1 hover:bg-blue-800">Consultar clima</a></li>                                        
+                    <li><a href="#" class="block whitespace-nowrap px-2 py-1 hover:bg-blue-800">Consultar calendario x ciclo</a></li>                                                            
+                </ul>
+            </li>            
+
+        {% endif %}
+    {% endif %}
+  </ul>
+  <ul class="flex space-x-4">
+    {% if user.is_authenticated %}
+        <li><a href="{% url 'bienvenida' %}" class="hover:underline">Inicio</a></li> 
+        <li class="text-m italic text-black">👤 {{ user.username }}</li>
+        <li><a href="{% url 'password_change' %}" class="hover:underline">Cambiar contraseña</a></li>
+        <li><a href="{% url 'logout' %}" class="hover:underline">Salir</a></li>
+    {% endif %}
+  </ul>
+</nav>
+<!-- Sub-barra -->
+<div class="bg-gray-200 p-2 text-center text-lg font-semibold text-blue-800">
+  {% block subnavbar_title %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mt-6"> 
+    {% block dashboard_content %}{% endblock %} 
+</div> 
+{% endblock %}

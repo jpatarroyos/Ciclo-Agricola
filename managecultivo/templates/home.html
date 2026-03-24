@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AgroPlan{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <!-- Logo -->
+    <img src="{% static 'img_agricola/logo_agricola.png' %}" alt="Logo CicloAgricola" class="mx-auto w-90 h-32">
+
+    <!-- Slogan debajo del logo -->
+     <h2 class="mt-4 text-2xl font-semibold text-blue-700 italic">
+        Planificacion de ciclos Agricolas
+    </h2>
+    <!-- Imagen  -->
+    <img src="{% static 'img_agricola/agricola.jpg' %}" alt="Agricola" 
+    class="mx-auto my-6 w-2/3 rounded shadow">
+
+</div>
+
+{% endblock %}
