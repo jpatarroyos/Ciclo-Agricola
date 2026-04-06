@@ -3,13 +3,13 @@
 
 {% block dashboard_content %}
 <div class="flex flex-col items-center justify-center h-screen text-center">
-    <h2 class="text-3xl font-bold mb-4">
+    <h2 class="text-3xl font-bold mb-4 text-[var(--primary)]">
         Hola {{ usuario.username }} !!
     </h2>
 
-  <img src="{% static 'img_agricola/logo_agricola.png' %}" alt="Logo" class="w-48 h-auto mx-auto">
+  <img src="{% static 'assets/img/logo.png' %}" alt="Logo" class="w-48 h-auto mx-auto">
 
-  <p class="text-lg mb-6">
+  <p class="text-lg mb-6 text-[var(--focus)]">
     Hoy es {{ fecha_hoy|date:"l j \\d\\e F \\d\\e Y" }}
   </p>
 </div>

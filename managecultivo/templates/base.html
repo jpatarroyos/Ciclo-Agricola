@@ -15,13 +15,15 @@
 
     <!-- Navbar -->
      {% block navbar %}
-    <nav class="bg-blue-600 p-4 text-white flex justify-between">
-        <ul class="flex space-x-4">
+    <nav class="bg-[var(--primary)] p-4 text-[var(--secondary)] flex px-5">
+        <ul class="flex space-x-4 justify-between w-full items-center">
             {% if user.is_authenticated %}
                 <li><a href="{% url 'logout' %}" class="hover:underline">Salir</a></li>
             {% else %}
-                <li><a href="{% url 'home' %}" class="hover:underline">Inicio</a></li>
-                <li><a href="{% url 'login' %}" class="hover:underline">Login</a></li>
+                <li><a href="{% url 'home' %}" class="hover:underline">
+                    <img src="{% static 'assets/img/logo.png' %}" alt="Logo" class="w-[80px]">
+                </a></li>
+                <li><a href="{% url 'login' %}" class="hover:underline font-bold">Login</a></li>
             {% endif %}
         </ul>
     </nav>
@@ -33,7 +35,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-blue-600 text-white text-center p-4 mt-6">
+    <footer class="bg-[var(--primary)] text-[var(--secondary)] text-center p-4 mt-6">
         <p>© 2026 Ciclo Agricola - Mi planeador</p>
     </footer>
 

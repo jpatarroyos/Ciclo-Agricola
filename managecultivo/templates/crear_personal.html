@@ -4,20 +4,27 @@
 
 {% block dashboard_content %}
 
-<h2 class="text-xl font-semibold mb-4">Personal registrado</h2>
-<table class="w-full bg-white shadow rounded">
-    <tr><th>Cédula</th><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Rol</th><th>Acciones</th></tr>
-    {% for persona in personas %}
+<h2 class="text-xl font-bold mb-4 text-[var(--focus)]">Personal registrado</h2>
+<table class="w-full bg-white shadow rounded text-center py-1">
     <tr>
-        <td>{{ persona.id_cedula }}</td>
-        <td>{{ persona.nombre }}</td>
-        <td>{{ persona.telefono }}</td>
-        <td>{{ persona.email }}</td>
-        <td>{{ persona.rol }}</td>
-        <td>
+        <th class="align-middle">Cédula</th>
+        <th class="align-middle">Nombre</th>
+        <th class="align-middle">Teléfono</th>
+        <th class="align-middle">Email</th>
+        <th class="align-middle">Rol</th>
+        <th class="align-middle">Acciones</th>
+    </tr>
+    {% for persona in personas %}
+    <tr class="my-1">
+        <td class="align-middle">{{ persona.id_cedula }}</td>
+        <td class="align-middle">{{ persona.nombre }}</td>
+        <td class="align-middle">{{ persona.telefono }}</td>
+        <td class="align-middle">{{ persona.email }}</td>
+        <td class="align-middle">{{ persona.rol }}</td>
+        <td class="align-middle">
             <button type="button"
                     onclick="document.getElementById('modalEditar{{ persona.pk }}').classList.remove('hidden')"
-                    class="bg-yellow-500 text-white px-3 py-1 rounded">
+                    class="bg-[var(--edit)] hover:bg-[var(--editFocus)] text-[var(--secondary)] px-3 py-1 rounded">
                 Editar
             </button>
         </td>
@@ -29,7 +36,7 @@
 <div class="mt-4">
     <button type="button"
             onclick="document.getElementById('modalCrear').classList.remove('hidden')"
-            class="bg-blue-600 text-white px-4 py-2 rounded">
+            class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-4 py-2 rounded">
         Crear Personal
     </button>
 </div>
@@ -55,8 +62,8 @@
         <option value="Recolector">Recolector</option>
         <option value="Varios">Varios</option>
       </select>
-      <button type="submit" name="crear_personal" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar</button>
-      <button type="button" onclick="document.getElementById('modalCrear').classList.add('hidden')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+      <button type="submit" name="crear_personal" class="bg-blue-600 text-[var(--secondary)] px-4 py-2 rounded">Guardar</button>
+      <button type="button" onclick="document.getElementById('modalCrear').classList.add('hidden')" class="bg-gray-400 text-[var(--secondary)] px-4 py-2 rounded">Cancelar</button>
     </form>
   </div>
 </div>
@@ -84,7 +91,7 @@
         <option value="Recolector" {% if persona.rol == "Recolector" %}selected{% endif %}>Recolector</option>
         <option value="Varios" {% if persona.rol == "Varios" %}selected{% endif %}>Varios</option>
       </select>
-      <button type="submit" name="editar_personal" class="bg-yellow-500 text-white px-4 py-2 rounded">Guardar cambios</button>
+      <button type="submit" name="editar_personal" class="bg-[var(--edit)] hover:bg-[var(--editFocus)] text-[var(--secondary)] px-4 py-2 rounded">Guardar cambios</button>
       <button type="button" onclick="document.getElementById('modalEditar{{ persona.pk }}').classList.add('hidden')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
     </form>
   </div>
