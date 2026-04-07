@@ -2,19 +2,21 @@
   font-family: 'Share Tech Mono', monospace;
 }
 
-/*Paleta de colores*/
-
-@import "tailwindcss";
-
-@theme {
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-}
-
 :root {
   --primary: #6ed66a;
   --secondary: #ffffff;
   --focus: #54a351;
   --edit: #fdc321;
   --editFocus: #e0ac1d;
+}
+
+nav {
+  background-color: var(--primary);
+  color: var(--secondary);
+}
+
+
+footer {
+  background-color: var(--primary);
+  color: var(--secondary);
 }
