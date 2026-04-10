@@ -3,8 +3,7 @@
 {% block subnavbar_title %}Menu Crear Zona Agricolas{% endblock %}
 
 {% block dashboard_content %}
-
-<h2 class="text-xl font-semibold mb-4">Zonas agrícolas existentes</h2>
+<h2 class="text-xl font-bold mb-4 text-[var(--focus)]">Zona agrícolas existentes</h2>
 <table class="w-full bg-white shadow rounded">
     <tr><th>Nombre</th><th>Ubicación</th><th>Dirección</th><th>Acciones</th></tr>
     {% for zona in zonas %}
@@ -15,7 +14,7 @@
         <td>
             <button type="button"
                     onclick="document.getElementById('modalEditar{{ zona.pk }}').classList.remove('hidden')"
-                    class="bg-yellow-500 text-white px-3 py-1 rounded">
+                    class="bg-[var(--edit)] hover:bg-[var(--editFocus)] text-[var(--secondary)] px-3 py-1 rounded">
                 Editar
             </button>
         </td>
@@ -27,7 +26,7 @@
 <div class="mt-4">
     <button type="button"
             onclick="document.getElementById('modalCrear').classList.remove('hidden')"
-            class="bg-blue-600 text-white px-4 py-2 rounded">
+            class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-4 py-2 rounded">
         Crear Zona Agrícola
     </button>
 </div>
@@ -44,8 +43,8 @@
       <input type="text" name="ubicacion" class="border rounded px-3 py-2 w-full mb-2" required>
       <strong>Dirección:</strong>
       <input type="text" name="direccion" class="border rounded px-3 py-2 w-full mb-2" required>
-      <button type="submit" name="crear_zonaagricola" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar</button>
-      <button type="button" onclick="document.getElementById('modalCrear').classList.add('hidden')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+      <button type="submit" name="crear_zonaagricola" class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">Guardar</button>
+      <button type="button" onclick="document.getElementById('modalCrear').classList.add('hidden')" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded">Cancelar</button>
     </form>
   </div>
 </div>
@@ -64,8 +63,8 @@
       <input type="text" name="ubicacion" value="{{ zona.ubicacion }}" class="border rounded px-3 py-2 w-full mb-2" required>
       <strong>Dirección:</strong>
       <input type="text" name="direccion" value="{{ zona.direccion }}" class="border rounded px-3 py-2 w-full mb-2" required>
-      <button type="submit" name="editar_zonaagricola" class="bg-yellow-500 text-white px-4 py-2 rounded">Guardar cambios</button>
-      <button type="button" onclick="document.getElementById('modalEditar{{ zona.pk }}').classList.add('hidden')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+      <button type="submit" name="editar_zonaagricola" class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">Guardar cambios</button>
+      <button type="button" onclick="document.getElementById('modalEditar{{ zona.pk }}').classList.add('hidden')" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded">Cancelar</button>
     </form>
   </div>
 </div>

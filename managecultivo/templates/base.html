@@ -15,22 +15,23 @@
 <body class="bg-gray-100 text-gray-900">
 
     <!-- Navbar -->
-     {% block navbar %}
+    {% block navbar %}
     <nav class="bg-[var(--primary)] p-4 text-[var(--secondary)] flex px-5">
-        <ul class="flex space-x-4 justify-between w-full items-center">
+    <ul class="flex space-x-4 justify-end w-full items-center">
+        <li>
             {% if user.is_authenticated %}
-                <li><a href="{% url 'logout' %}" class="hover:underline">Salir</a></li>
+                <a href="{% url 'logout' %}" class="hover:underline">Salir</a>
             {% else %}
-                <li><a href="{% url 'home' %}" class="hover:underline">
-                    <img src="{% static 'assets/img/logo.png' %}" alt="Logo" class="w-[80px]">
-                </a></li>
-                <li><a href="{% url 'login' %}" class="hover:underline font-bold">Login</a></li>
+                <a href="{% url 'login' %}" class="hover:underline font-bold">Login</a>
             {% endif %}
-        </ul>
+        </li>
+    </ul>
     </nav>
     {% endblock %}
+
+
     <!-- Contenido dinámico -->
-    <div class="container mx-auto p-6">
+    <div class="container mx-auto p-1">
         {% block content %}
         {% endblock %}
     </div>

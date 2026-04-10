@@ -62,8 +62,8 @@
         <option value="Recolector">Recolector</option>
         <option value="Varios">Varios</option>
       </select>
-      <button type="submit" name="crear_personal" class="bg-blue-600 text-[var(--secondary)] px-4 py-2 rounded">Guardar</button>
-      <button type="button" onclick="document.getElementById('modalCrear').classList.add('hidden')" class="bg-gray-400 text-[var(--secondary)] px-4 py-2 rounded">Cancelar</button>
+      <button type="submit" name="crear_personal" class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">Guardar</button>
+      <button type="button" onclick="document.getElementById('modalCrear').classList.add('hidden')" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded">Cancelar</button>
     </form>
   </div>
 </div>
@@ -91,8 +91,8 @@
         <option value="Recolector" {% if persona.rol == "Recolector" %}selected{% endif %}>Recolector</option>
         <option value="Varios" {% if persona.rol == "Varios" %}selected{% endif %}>Varios</option>
       </select>
-      <button type="submit" name="editar_personal" class="bg-[var(--edit)] hover:bg-[var(--editFocus)] text-[var(--secondary)] px-4 py-2 rounded">Guardar cambios</button>
-      <button type="button" onclick="document.getElementById('modalEditar{{ persona.pk }}').classList.add('hidden')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+      <button type="submit" name="editar_personal" class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">Guardar cambios</button>
+      <button type="button" onclick="document.getElementById('modalEditar{{ persona.pk }}').classList.add('hidden')" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded">Cancelar</button>
     </form>
   </div>
 </div>

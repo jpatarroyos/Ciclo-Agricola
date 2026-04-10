@@ -1,0 +1,229 @@
+{% extends "base_dashboard.html" %}
+
+{% block subnavbar_title %}Cultivo / Actividad / Insumo por hectaria{% endblock %}
+
+{% block dashboard_content %}
+
+<h2 class="text-xl font-bold mb-4 text-[var(--focus)]">
+  Parametrizar Cultivo - Actividad - Insumo (por Hectaria)
+</h2>
+
+<form method="post" action="{% url 'crear_actividadcultivo' %}">
+  {% csrf_token %}
+
+  <!-- Selector de cultivo -->
+  <div class="mb-4">
+    <label for="cultivo"><strong>Cultivo:</strong></label>
+    <select id="cultivo" name="id_cultivo" class="border p-1" required
+            onchange="window.location.href='?cultivo=' + this.value;">
+      <option value="" disabled selected>-- Seleccione un Cultivo --</option>
+      {% for cultivo in cultivos %}
+        <option value="{{ cultivo.id_cultivo }}"
+          {% if cultivo.id_cultivo|stringformat:"s" == request.GET.cultivo %}selected{% endif %}>
+          {{ cultivo.descripcion }}
+        </option>
+      {% endfor %}
+    </select>
+    <button type="button"
+            onclick="document.getElementById('modalCrearCultivo').classList.remove('hidden')"
+            class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">
+      Crear Cultivo
+    </button>
+  </div>
+
+  <!-- Panel Agregar Actividad -->
+  <fieldset class="border-2 border-blue-400 rounded-lg p-2 mb-2">
+    <legend class="px-2 text-blue-600 font-semibold">Agregar Actividad</legend>
+
+    <!-- Línea 1 -->
+    <div class="mb-2">
+      <label><strong>Actividad:</strong></label>
+      <select id="actividad" name="id_actividad" class="border p-1" required>
+        <option value="" disabled selected>-- Seleccione una actividad --</option>
+        {% for actividad in actividades_lista %}
+          <option value="{{ actividad.id_actividad }}">{{ actividad.descripcion }}</option>
+        {% endfor %}
+      </select>
+      <button type="button"
+              onclick="document.getElementById('modalCrearActividad').classList.remove('hidden')"
+              class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">
+        Crear Actividad
+      </button>
+    </div>
+
+    <!-- Línea 2 -->
+    <div class="mb-2 flex items-center">
+      <label class="mr-2"><strong>Frecuencia:</strong></label>
+      <input type="number" name="numero_veces" class="border p-1 w-20" required>
+      <span class="mx-2">cada</span>
+      <input type="number" name="frecuencia_valor" class="border p-1 w-20" required>
+      <select name="frecuencia_unidad" class="border p-1 mr-6">
+        {% for unidad in unidades %}
+          <option value="{{ unidad.id }}">{{ unidad.descripcion }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- Número de personas -->
+      <div class="ml-8 flex items-center">
+        <label class="mr-2"><strong>Número de personas:</strong></label>
+        <input type="number" name="numero_personas" class="border p-1 w-20" required>
+      </div>
+    </div>
+
+    <!-- Seleccionar Insumos -->
+    <fieldset class="border-2 border-green-400 rounded-lg p-2 mb-2">
+      <legend class="px-2 text-green-600 font-semibold">Seleccionar Insumos</legend>
+      <div class="mb-2 border rounded p-2 h-40 overflow-y-scroll bg-gray-50">
+        <div class="space-y-2">
+          {% for insumo in insumos %}
+            <div class="flex items-center">
+              <input type="checkbox" name="insumos" value="{{ insumo.id_insumo }}" class="mr-2">
+              <span class="mr-2">{{ insumo.descripcion }}</span>
+              <label class="mr-2"><strong>Cantidad sugerida:</strong></label>
+              <input type="number" step="0.01" name="cantidad_{{ insumo.id_insumo }}"
+                     placeholder="Cantidad sugerida" class="border p-1 w-24" value="0">
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="mb-2">
+      <label><strong>Insumos:</strong></label>
+      <button type="button"
+              onclick="document.getElementById('modalCrearInsumo').classList.remove('hidden')"
+              class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">
+        Crear Insumo
+      </button>
+    </div>
+  </fieldset>
+
+  <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">
+    Agregar Actividad al Cultivo
+  </button>
+</form>
+
+<!-- Tabla Actividades del Cultivo -->
+{% if actividades %}
+  <h2 class="text-xl font-semibold mb-2 text-center">Actividades del Cultivo</h2>
+  <table class="w-full border">
+    <thead class="bg-blue-100">
+      <tr>
+        <th>Actividad</th>
+        <th>Frecuencia</th>
+        <th>cada</th>
+        <th>Unidad</th>
+        <th>Personas</th>
+        <th>Insumos</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for act in actividades %}
+        <tr>
+          <td class="text-center">{{ act.id_actividad.descripcion }}</td>
+          <td class="text-center">{{ act.numero_veces }}</td>
+          <td class="text-center">{{ act.frecuencia_valor }}</td>
+          <td class="text-center">{{ act.frecuencia_unidad.descripcion }}</td>
+          <td class="text-center">{{ act.numero_personas }}</td>
+          <td>
+            {% for insumo in act.actividadcultivoinsumo_set.all %}
+              {{ insumo.id_insumo.descripcion }} ({{ insumo.cantidad_sugerida }})<br>
+            {% empty %}-{% endfor %}
+          </td>
+          <td>
+            <form method="post" action="{% url 'borrar_actividadcultivo' act.pk %}">
+              {% csrf_token %}
+              <button type="submit"
+                      class="bg-[var(--edit)] hover:bg-[var(--editFocus)] text-[var(--secondary)] px-3 py-1 rounded">
+                  Borrar
+              </button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+<!-- Mensajes -->
+{% if messages %}
+  <div class="mb-4">
+    {% for message in messages %}
+      <div class="p-2 rounded 
+                  {% if message.tags == 'success' %} bg-green-200 text-green-800 
+                  {% elif message.tags == 'error' %} bg-red-200 text-red-800 
+                  {% else %} bg-blue-200 text-blue-800 {% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- Modales -->
+<!-- Modal Crear Cultivo -->
+<div id="modalCrearCultivo" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white p-6 rounded shadow-lg w-96">
+    <h3 class="text-lg font-bold mb-4">Crear Cultivo</h3>
+    <form method="post" action="{% url 'crear_cultivo' %}">
+      {% csrf_token %}
+      <label>Descripción:</label>
+      <input type="text" name="descripcion" class="border p-1 w-full mb-2" required>
+      <label>Tiempo agrícola (días):</label>
+      <input type="number" name="tiempo_agricola" class="border p-1 w-full mb-2" required>
+      <button type="submit" class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">Guardar</button>
+      <button type="button" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded"
+              onclick="document.getElementById('modalCrearCultivo').classList.add('hidden')">
+        Cancelar
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Crear Actividad -->
+<div id="modalCrearActividad" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white p-6 rounded shadow-lg w-96">
+    <h3 class="text-lg font-bold mb-4">Crear Actividad</h3>
+    <form method="post" action="{% url 'crear_actividad' %}">
+      {% csrf_token %}
+      <div class="flex items-center mb-2">
+        <label class="mr-2"><strong>Nombre:</strong></label>
+        <input type="text" name="descripcion" class="border p-1 flex-1" required>
+      </div>
+      <button type="submit" class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">Guardar</button>
+      <button type="button" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded" onclick="document.getElementById('modalCrearActividad').classList.add('hidden')">Cancelar</button>
+    </form>
+  </div>
+</div>
+<!-- Modal Crear Insumo -->
+<div id="modalCrearInsumo" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white p-6 rounded shadow-lg w-96">
+    <h3 class="text-lg font-bold mb-4">Crear Insumo</h3>
+    <form method="post" action="{% url 'crear_insumo' %}">
+      {% csrf_token %}
+      
+      <div class="flex items-center mb-2">
+        <label class="mr-2"><strong>Nombre:</strong></label>
+        <input type="text" name="descripcion" class="border p-1 flex-1" required>
+      </div>
+
+      <div class="flex items-center mb-2">
+        <label class="mr-2"><strong>Cantidad existente:</strong></label>
+        <input type="number" step="0.01" name="cantidad_existente" class="border p-1 flex-1" required>
+      </div>
+
+      <div class="flex items-center mb-4">
+        <label class="mr-2"><strong>Tipo:</strong></label>
+        <select name="tipo" class="border p-1 flex-1">
+          <option value="fertilizante">Fertilizante</option>
+          <option value="semilla">Semilla</option>
+          <option value="herramienta">Herramienta</option>
+        </select>
+      </div>
+
+      <button type="submit" class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">Guardar</button>
+      <button type="button" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded" onclick="document.getElementById('modalCrearInsumo').classList.add('hidden')">Cancelar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

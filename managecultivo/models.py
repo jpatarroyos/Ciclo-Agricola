@@ -37,25 +37,43 @@ class Actividad(models.Model):
 
 # Insumos
 class Insumo(models.Model):
+    TIPOS = [
+        ("fertilizante", "Fertilizante"),
+        ("semilla", "Semilla"),
+        ("herramienta", "Herramienta"),
+    ]
+
     id_insumo = models.BigAutoField(primary_key=True)
     descripcion = models.CharField(max_length=100)
     cantidad_existente = models.FloatField()
+    tipo = models.CharField(max_length=20, choices=TIPOS, default="fertilizante")
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return self.descripcion
+        return f"{self.descripcion} ({self.get_tipo_display()})"
 
+
+class UnidadTiempo(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    descripcion = models.CharField(max_length=50)  # Ej: "Horas", "Días", "Semanas", "Meses"
+
+    def __str__(self):
+        return self.descripcion
 
 # Relación Cultivo - Actividad
 class ActividadCultivo(models.Model):
     id_cultivo = models.ForeignKey(Cultivo, on_delete=models.CASCADE)
     id_actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE)
-    frecuencia = models.IntegerField(help_text="Frecuencia en días")
+    numero_veces = models.IntegerField() # Ejm 1 
+    frecuencia_valor = models.IntegerField()  # Ej: Cada 8
+    frecuencia_unidad = models.ForeignKey(UnidadTiempo, on_delete=models.PROTECT, related_name="frecuencias") # horas
     numero_personas = models.IntegerField()
+    a_partir_de = models.IntegerField(default=0)   # días desde inicio del ciclo
+    color = models.CharField(max_length=20, default="#000000")  # color en calendario
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.id_cultivo.descripcion} - {self.id_actividad.descripcion}"
+        return f"Cultivo: {self.id_cultivo.descripcion} | Actividad: {self.id_actividad.descripcion}"
 
 
 # Relación CultivoActividad - Insumos
@@ -66,13 +84,13 @@ class ActividadCultivoInsumo(models.Model):
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.id_cultivo.descripcion} - {self.id_actividad.descripcion} - {self.id_insumo.descripcion}"
-
+        return f"Cultivo: {self.actividad_cultivo.id_cultivo.descripcion} | Actividad: {self.actividad_cultivo.id_actividad.descripcion} | Insumo: {self.id_insumo.descripcion} | Cantidad: {self.cantidad_sugerida}"        
 
 # Compra de insumos
 class CompraInsumo(models.Model):
     id_insumo = models.ForeignKey(Insumo, on_delete=models.CASCADE)
     fecha_compra = models.DateField()
+    marca = models.CharField(max_length=50)
     cantidad = models.FloatField()
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -118,6 +136,7 @@ class ActividadCiclo(models.Model):
     id_actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE)
     fecha_programada = models.DateField()
     numero_personas = models.IntegerField()
+    color = models.CharField(max_length=20, default="#000000")  # color en calendario    
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):

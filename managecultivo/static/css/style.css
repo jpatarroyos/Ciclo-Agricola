@@ -3,11 +3,14 @@
 }
 
 :root {
-  --primary: #6ed66a;
+  --primary: #70b46d;
   --secondary: #ffffff;
   --focus: #54a351;
   --edit: #fdc321;
   --editFocus: #e0ac1d;
+  --cancel: #bdb8ae;
+  --cancelFocus: #797571;
+
 }
 
 nav {

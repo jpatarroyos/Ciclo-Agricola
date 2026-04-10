@@ -1,0 +1,57 @@
+{% extends "base_dashboard.html" %}
+
+{% block subnavbar_title %}Planear Ciclo del cultivo{% endblock %}
+
+{% block dashboard_content %}
+
+<h2 class="text-xl font-bold mb-4 text-center">Planear Ciclo del Cultivo</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <label><strong>Cultivo:</strong></label>
+  <select name="id_cultivo" required>
+    {% for c in cultivos %}
+      <option value="{{ c.id_cultivo }}">{{ c.descripcion }}</option>
+    {% endfor %}
+  </select>
+
+  <label><strong>Zona Agrícola:</strong></label>
+  <select name="id_zonaagricola" required>
+    {% for z in zonas %}
+      <option value="{{ z.id_zonaagricola }}">{{ z.nombre }}</option>
+    {% endfor %}
+  </select>
+
+  <label><strong>Fecha de inicio:</strong></label>
+  <input type="date" name="fecha_inicio" required>
+
+  <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded">
+    Crear Ciclo
+  </button>
+</form>
+
+{% if ciclo %}
+  <h3 class="text-lg font-semibold mt-4">
+    Ciclo de {{ ciclo.id_cultivo.descripcion }} ({{ ciclo.fecha_inicio }} - {{ ciclo.fecha_fin }})
+  </h3>
+
+  <table class="w-full border mt-2">
+    <thead class="bg-blue-100">
+      <tr>
+        <th>Fecha</th>
+        <th>Actividad</th>
+        <th>Personas</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for act in actividades_ciclo %}
+        <tr>
+          <td>{{ act.fecha_programada }}</td>
+          <td style="color: {{ act.color }}">{{ act.id_actividad.descripcion }}</td>
+          <td>{{ act.numero_personas }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+{% endblock %}

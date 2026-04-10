@@ -17,6 +17,14 @@ urlpatterns = [
 
     path('crear-usuario/', views.crear_usuario, name='crear_usuario'),
     path("crear_zonaagricola/", views.crear_zonaagricola, name="crear_zonaagricola"),          
-    path("crear_personal/", views.crear_personal, name="crear_personal"),          
+    path("crear_personal/", views.crear_personal, name="crear_personal"),    
 
+    path("parametrizar_cultivo/", views.parametrizar_cultivo, name="parametrizar_cultivo"),
+    path("crear_cultivo/", views.crear_cultivo, name="crear_cultivo"),
+    path("crear_actividadcultivo/", views.crear_actividadcultivo, name="crear_actividadcultivo"),
+    path("crear_actividad/", views.crear_actividad, name="crear_actividad"),
+    path("crear_insumo/", views.crear_insumo, name="crear_insumo"),
+    path("crear_actividadcultivo/", views.crear_actividadcultivo, name="crear_actividadcultivo"),
+    path("borrar_actividadcultivo/<int:pk>/", views.borrar_actividadcultivo, name="borrar_actividadcultivo"),
+    path("planear_ciclo/", views.planear_ciclo, name="planear_ciclo"),
 ]
