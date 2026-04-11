@@ -69,10 +69,12 @@ def crear_actividadcultivo(request):
         print(request.POST)  
         cultivo_id = request.POST.get("id_cultivo")
         actividad_id = request.POST.get("id_actividad")
-        numero_veces = request.POST.get("numero_veces")
-        frecuencia_valor = request.POST.get("frecuencia_valor")
-        frecuencia_unidad_id = request.POST.get("frecuencia_unidad")
-        numero_personas = request.POST.get("numero_personas")
+        numero_veces = int(request.POST["numero_veces"])
+        frecuencia_valor = int(request.POST["frecuencia_valor"])
+        frecuencia_unidad_id = request.POST["frecuencia_unidad"]
+        numero_personas = int(request.POST["numero_personas"])
+        a_partir_de = int(request.POST.get("a_partir_de", 0))
+        color = request.POST.get("color", "#000000")
 
         # 1. Crear ActividadCultivo
         act_cultivo = ActividadCultivo.objects.create(
@@ -82,6 +84,8 @@ def crear_actividadcultivo(request):
             frecuencia_valor=frecuencia_valor,
             frecuencia_unidad_id=frecuencia_unidad_id,
             numero_personas=numero_personas,
+            a_partir_de=a_partir_de,
+            color=color,            
             registrado_por=request.user
         )
 

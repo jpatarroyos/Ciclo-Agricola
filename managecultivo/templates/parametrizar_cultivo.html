@@ -31,11 +31,12 @@
     </button>
   </div>
 
-  <!-- Panel Agregar Actividad -->
-  <fieldset class="border-2 border-blue-400 rounded-lg p-2 mb-2">
+  <div class="flex space-x-4">
+  <!-- Panel Agregar Actividad (izquierda) -->
+  <fieldset class="border-2 border-blue-400 rounded-lg p-2 mb-2 w-1/2">
     <legend class="px-2 text-blue-600 font-semibold">Agregar Actividad</legend>
 
-    <!-- Línea 1 -->
+    <!-- Línea 1: Actividad -->
     <div class="mb-2">
       <label><strong>Actividad:</strong></label>
       <select id="actividad" name="id_actividad" class="border p-1" required>
@@ -51,43 +52,50 @@
       </button>
     </div>
 
-    <!-- Línea 2 -->
+    <!-- Línea 2: Frecuencia -->
     <div class="mb-2 flex items-center">
       <label class="mr-2"><strong>Frecuencia:</strong></label>
       <input type="number" name="numero_veces" class="border p-1 w-20" required>
       <span class="mx-2">cada</span>
       <input type="number" name="frecuencia_valor" class="border p-1 w-20" required>
-      <select name="frecuencia_unidad" class="border p-1 mr-6">
+      <select name="frecuencia_unidad" class="border p-1">
         {% for unidad in unidades %}
           <option value="{{ unidad.id }}">{{ unidad.descripcion }}</option>
         {% endfor %}
       </select>
-
-      <!-- Número de personas -->
-      <div class="ml-8 flex items-center">
-        <label class="mr-2"><strong>Número de personas:</strong></label>
-        <input type="number" name="numero_personas" class="border p-1 w-20" required>
-      </div>
     </div>
 
-    <!-- Seleccionar Insumos -->
-    <fieldset class="border-2 border-green-400 rounded-lg p-2 mb-2">
-      <legend class="px-2 text-green-600 font-semibold">Seleccionar Insumos</legend>
-      <div class="mb-2 border rounded p-2 h-40 overflow-y-scroll bg-gray-50">
-        <div class="space-y-2">
-          {% for insumo in insumos %}
-            <div class="flex items-center">
-              <input type="checkbox" name="insumos" value="{{ insumo.id_insumo }}" class="mr-2">
-              <span class="mr-2">{{ insumo.descripcion }}</span>
-              <label class="mr-2"><strong>Cantidad sugerida:</strong></label>
-              <input type="number" step="0.01" name="cantidad_{{ insumo.id_insumo }}"
-                     placeholder="Cantidad sugerida" class="border p-1 w-24" value="0">
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </fieldset>
+    <!-- Línea 3: A partir de y Color -->
+    <div class="mb-2 flex items-center">
+      <label class="mr-2"><strong>A partir de (días):</strong></label>
+      <input type="number" name="a_partir_de" class="border p-1 w-20" value="0" required>
 
+      <label class="ml-6 mr-2"><strong>Color:</strong></label>
+      <input type="color" name="color" class="border p-1 w-12 h-8" value="#579DA2">
+    </div>
+
+    <!-- Línea 4: Número de personas -->
+    <div class="mb-2 flex items-center">
+      <label class="mr-2"><strong>Número de personas:</strong></label>
+      <input type="number" name="numero_personas" class="border p-1 w-20" required>
+    </div>
+  </fieldset>
+  <!-- Panel Seleccionar Insumos (izquierda) -->
+  <fieldset class="border-2 border-green-400 rounded-lg p-2 mb-2 flex-1">
+    <legend class="px-2 text-green-600 font-semibold">Seleccionar Insumos</legend>
+    <div class="mb-2 border rounded p-2 h-40 overflow-y-scroll bg-gray-50">
+      <div class="space-y-2">
+        {% for insumo in insumos %}
+          <div class="flex items-center">
+            <input type="checkbox" name="insumos" value="{{ insumo.id_insumo }}" class="mr-2">
+            <span class="mr-2">{{ insumo.descripcion }}</span>
+            <label class="mr-2"><strong>Cantidad sugerida:</strong></label>
+            <input type="number" step="0.01" name="cantidad_{{ insumo.id_insumo }}"
+                   placeholder="Cantidad sugerida" class="border p-1 w-24" value="0">
+          </div>
+        {% endfor %}
+      </div>
+    </div>
     <div class="mb-2">
       <label><strong>Insumos:</strong></label>
       <button type="button"
@@ -97,10 +105,13 @@
       </button>
     </div>
   </fieldset>
-
+</div>
+<!-- Botón final -->
+<div class="mt-4">
   <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">
     Agregar Actividad al Cultivo
   </button>
+</div>  
 </form>
 
 <!-- Tabla Actividades del Cultivo -->
@@ -113,7 +124,9 @@
         <th>Frecuencia</th>
         <th>cada</th>
         <th>Unidad</th>
+        <th>A partir de (días)</th>
         <th>Personas</th>
+        <th>Color</th>
         <th>Insumos</th>
         <th>Acción</th>
       </tr>
@@ -125,7 +138,13 @@
           <td class="text-center">{{ act.numero_veces }}</td>
           <td class="text-center">{{ act.frecuencia_valor }}</td>
           <td class="text-center">{{ act.frecuencia_unidad.descripcion }}</td>
+          <td class="text-center">{{ act.a_partir_de }}</td>
           <td class="text-center">{{ act.numero_personas }}</td>
+          <td class="text-center">
+            <!-- Muestra el color como bloque visual -->
+            <span class="inline-block w-6 h-6 rounded" style="background-color: {{ act.color }}"></span>
+            <small>{{ act.color }}</small>
+          </td>
           <td>
             {% for insumo in act.actividadcultivoinsumo_set.all %}
               {{ insumo.id_insumo.descripcion }} ({{ insumo.cantidad_sugerida }})<br>
