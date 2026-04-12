@@ -7,7 +7,7 @@ def crear_zonaagricola(request):
     zonas = ZonaAgricola.objects.all()
 
     # Crear zona
-    if request.method == "POST" and "crear_zonaagricola" in request.POST:
+    if request.method == "POST" and "crear_zonaagricola" in request.POST: #mira el nombre del boton
         nombre = request.POST.get("nombre")
         ubicacion = request.POST.get("ubicacion")
         direccion = request.POST.get("direccion")

@@ -27,4 +27,5 @@ urlpatterns = [
     path("crear_actividadcultivo/", views.crear_actividadcultivo, name="crear_actividadcultivo"),
     path("borrar_actividadcultivo/<int:pk>/", views.borrar_actividadcultivo, name="borrar_actividadcultivo"),
     path("planear_ciclo/", views.planear_ciclo, name="planear_ciclo"),
+    path("compra_insumos/", views.gestionar_insumos, name="compra_insumos"),
 ]

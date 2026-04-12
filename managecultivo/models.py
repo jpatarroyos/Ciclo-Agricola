@@ -95,7 +95,8 @@ class CompraInsumo(models.Model):
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.insumo.descripcion} - {self.fecha_compra} - {self.cantidad}"
+        return f"{self.id_insumo.descripcion} - {self.fecha_compra} - {self.cantidad}"
+
 
 
 # Ciclo agrícola
@@ -151,7 +152,7 @@ class ActividadCicloInsumo(models.Model):
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.insumo.descripcion} usado en {self.actividad_ciclo.id_actividad.descripcion}"
+        return f"{self.id_insumo.descripcion} usado en {self.actividad_ciclo.id_actividad.descripcion}"
 
 
 # Relación Personal - Ciclo
