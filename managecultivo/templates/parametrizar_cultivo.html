@@ -54,9 +54,9 @@
 
     <!-- Línea 2: Frecuencia -->
     <div class="mb-2 flex items-center">
-      <label class="mr-2">dia de inicio:</label>
+      <label class="mr-2">Dia de inicio:</label>
       <input type="number" name="dia_inicio" class="border p-1 w-20" required>
-      <span class="mx-2">frecuencia</span>
+      <span class="mx-2">Frecuencia</span>
       <select name="frecuencia" class="border p-1">
         {% for unidad in unidades %}
           <option value="{{ unidad.id }}">{{ unidad.descripcion }}</option>
