@@ -6,3 +6,4 @@ from .v_parametrizar import parametrizar_cultivo, crear_cultivo, crear_actividad
 from .v_parametrizar import crear_actividadcultivo, crear_insumo, borrar_actividadcultivo
 from .v_ciclo import planear_ciclo
 from .v_compra_insumos import gestionar_insumos
+from .v_clima import clima
