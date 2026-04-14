@@ -54,35 +54,25 @@
 
     <!-- Línea 2: Frecuencia -->
     <div class="mb-2 flex items-center">
-      <label class="mr-2"><strong>Frecuencia:</strong></label>
-      <input type="number" name="numero_veces" class="border p-1 w-20" required>
-      <span class="mx-2">cada</span>
-      <input type="number" name="frecuencia_valor" class="border p-1 w-20" required>
-      <select name="frecuencia_unidad" class="border p-1">
+      <label class="mr-2">dia de inicio:</label>
+      <input type="number" name="dia_inicio" class="border p-1 w-20" required>
+      <span class="mx-2">frecuencia</span>
+      <select name="frecuencia" class="border p-1">
         {% for unidad in unidades %}
           <option value="{{ unidad.id }}">{{ unidad.descripcion }}</option>
         {% endfor %}
       </select>
-    </div>
-
-    <!-- Línea 3: A partir de y Color -->
-    <div class="mb-2 flex items-center">
-      <label class="mr-2"><strong>A partir de (días):</strong></label>
-      <input type="number" name="a_partir_de" class="border p-1 w-20" value="0" required>
-
       <label class="ml-6 mr-2"><strong>Color:</strong></label>
       <input type="color" name="color" class="border p-1 w-12 h-8" value="#579DA2">
     </div>
+
 
     <!-- Línea 4: Número de personas -->
     <div class="mb-2 flex items-center">
       <label class="mr-2"><strong>Número de personas:</strong></label>
       <input type="number" name="numero_personas" class="border p-1 w-20" required>
     </div>
-  </fieldset>
-  <!-- Panel Seleccionar Insumos (izquierda) -->
-  <fieldset class="border-2 border-green-400 rounded-lg p-2 mb-2 flex-1">
-    <legend class="px-2 text-green-600 font-semibold">Seleccionar Insumos</legend>
+    <label class="mr-2"><strong>INSUMOS:</strong></label>    
     <div class="mb-2 border rounded p-2 h-40 overflow-y-scroll bg-gray-50">
       <div class="space-y-2">
         {% for insumo in insumos %}
@@ -103,7 +93,12 @@
               class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">
         Crear Insumo
       </button>
-    </div>
+    </div>    
+  </fieldset>
+  <!-- Panel Seleccionar Insumos (izquierda) -->
+  <fieldset class="border-2 border-green-400 rounded-lg p-2 mb-2 flex-1">
+    <legend class="px-2 text-green-600 font-semibold">Seleccionar Insumos</legend>
+
   </fieldset>
 </div>
 <!-- Botón final -->
@@ -121,10 +116,8 @@
     <thead class="bg-blue-100">
       <tr>
         <th>Actividad</th>
-        <th>Frecuencia</th>
-        <th>cada</th>
-        <th>Unidad</th>
-        <th>A partir de (días)</th>
+        <th>Dia Inicio</th>
+        <th>frecuencia</th>
         <th>Personas</th>
         <th>Color</th>
         <th>Insumos</th>
@@ -134,11 +127,9 @@
     <tbody>
       {% for act in actividades %}
         <tr>
-          <td class="text-center">{{ act.id_actividad.descripcion }}</td>
-          <td class="text-center">{{ act.numero_veces }}</td>
-          <td class="text-center">{{ act.frecuencia_valor }}</td>
-          <td class="text-center">{{ act.frecuencia_unidad.descripcion }}</td>
-          <td class="text-center">{{ act.a_partir_de }}</td>
+          <td class="text">{{ act.id_actividad.descripcion }}</td>
+          <td class="text-center">{{ act.dia_inicio }}</td>
+          <td class="text-center">{{ act.frecuencia.descripcion }}</td>
           <td class="text-center">{{ act.numero_personas }}</td>
           <td class="text-center">
             <!-- Muestra el color como bloque visual -->
@@ -146,7 +137,7 @@
             <small>{{ act.color }}</small>
           </td>
           <td>
-            {% for insumo in act.actividadcultivoinsumo_set.all %}
+            {% for insumo in act.fk_CultivoActividadInsumo1.all %}
               {{ insumo.id_insumo.descripcion }} ({{ insumo.cantidad_sugerida }})<br>
             {% empty %}-{% endfor %}
           </td>
