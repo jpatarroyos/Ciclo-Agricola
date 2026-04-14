@@ -29,4 +29,7 @@ urlpatterns = [
     path("planear_ciclo/", views.planear_ciclo, name="planear_ciclo"),
     path("compra_insumos/", views.gestionar_insumos, name="compra_insumos"),
     path("Consulta/clima/", views.clima, name="clima")
+    
+    path("mover_arriba/<int:pk>/", views.mover_arriba, name="mover_arriba"),
+    path("mover_abajo/<int:pk>/", views.mover_abajo, name="mover_abajo"),    
 ]

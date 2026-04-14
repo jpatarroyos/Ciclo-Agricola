@@ -9,14 +9,20 @@
 <form method="post">
   {% csrf_token %}
   <label><strong>Cultivo:</strong></label>
-  <select name="id_cultivo" required>
-    {% for c in cultivos %}
-      <option value="{{ c.id_cultivo }}">{{ c.descripcion }}</option>
+  <select id="cultivo" name="id_cultivo" class="border p-1" required
+          onchange="window.location.href='?cultivo=' + this.value;">
+    <option value="" disabled selected>-- Seleccione un Cultivo --</option>
+    {% for cultivo in cultivos %}
+      <option value="{{ cultivo.id_cultivo }}"
+        {% if cultivo.id_cultivo|stringformat:"s" == request.GET.cultivo %}selected{% endif %}>
+        {{ cultivo.descripcion }}
+      </option>
     {% endfor %}
   </select>
 
-  <label><strong>Zona Agrícola:</strong></label>
-  <select name="id_zonaagricola" required>
+  <label><strong>Zona Agricola:</strong></label>
+  <select id="zonaagricola" name="id_zonaagricola" class="border p-1" required>
+    <option value="" disabled selected>-- Seleccione una zona --</option>
     {% for z in zonas %}
       <option value="{{ z.id_zonaagricola }}">{{ z.nombre }}</option>
     {% endfor %}
@@ -35,23 +41,40 @@
     Ciclo de {{ ciclo.id_cultivo.descripcion }} ({{ ciclo.fecha_inicio }} - {{ ciclo.fecha_fin }})
   </h3>
 
-  <table class="w-full border mt-2">
-    <thead class="bg-blue-100">
-      <tr>
-        <th>Fecha</th>
-        <th>Actividad</th>
-        <th>Personas</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for act in actividades_ciclo %}
-        <tr>
-          <td>{{ act.fecha_programada }}</td>
-          <td style="color: {{ act.color }}">{{ act.id_actividad.descripcion }}</td>
-          <td>{{ act.numero_personas }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="flex">
+    <!-- Botones de navegación -->
+    <div class="w-1/4 p-2">
+      <button class="bg-gray-200 px-2 py-1 rounded">⬅️ Mes anterior</button>
+      <button class="bg-gray-200 px-2 py-1 rounded">➡️ Mes siguiente</button>
+    </div>
+
+    <!-- Calendario -->
+    <div class="w-3/4 p-2">
+      <table class="w-full border">
+        <thead class="bg-blue-100">
+          <tr>
+            <th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for semana in calendario %}
+          <tr>
+            {% for dia in semana %}
+              <td class="h-24 align-top border p-1">
+                <div class="text-sm font-bold">{{ dia.fecha|date:"j" }}</div>
+                {% for act in dia.actividades %}
+                  <div style="color: {{ act.color }}" class="text-xs">
+                    {{ act.id_actividad.descripcion }}
+                  </div>
+                {% endfor %}
+              </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 {% endif %}
+
 {% endblock %}

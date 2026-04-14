@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from ..models import Insumo, CompraInsumo, ActividadCicloInsumo
+from ..models import Insumo, CompraInsumo, CicloActividadInsumo
 
 from django.db.models import Sum
 from django.utils.timezone import now
@@ -18,7 +18,7 @@ def gestionar_insumos(request):
 
     if insumo_id:
         compras = CompraInsumo.objects.filter(id_insumo=insumo_id)
-        actividades = ActividadCicloInsumo.objects.filter(id_insumo=insumo_id)
+        actividades = CicloActividadInsumo.objects.filter(id_insumo=insumo_id)
         total_compras = compras.aggregate(Sum("cantidad"))["cantidad__sum"] or 0
         total_utilizado = actividades.aggregate(Sum("cantidad_utilizada"))["cantidad_utilizada__sum"] or 0
 
