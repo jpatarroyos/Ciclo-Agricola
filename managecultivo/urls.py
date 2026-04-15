@@ -31,4 +31,6 @@ urlpatterns = [
     path("clima/", views.clima, name="clima"),
     path("mover_arriba/<int:pk>/", views.mover_arriba, name="mover_arriba"),
     path("mover_abajo/<int:pk>/", views.mover_abajo, name="mover_abajo"),    
+    path("calendario_ciclo/", views.calendario_ciclo, name="calendario_ciclo"),
+    path('ciclo/<int:pk>/', views.detalle_ciclo, name='detalle_ciclo'),
 ]

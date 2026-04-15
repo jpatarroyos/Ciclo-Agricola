@@ -83,3 +83,4 @@ def planear_ciclo(request):
         "ciclo": ciclo,
         "calendario": calendario
     })
+
