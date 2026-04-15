@@ -11,31 +11,41 @@
 <form method="post" action="{% url 'crear_actividadcultivo' %}">
   {% csrf_token %}
 
-  <!-- Selector de cultivo -->
-  <div class="mb-4">
-    <label for="cultivo"><strong>Cultivo:</strong></label>
-    <select id="cultivo" name="id_cultivo" class="border p-1" required
-            onchange="window.location.href='?cultivo=' + this.value;">
-      <option value="" disabled selected>-- Seleccione un Cultivo --</option>
-      {% for cultivo in cultivos %}
-        <option value="{{ cultivo.id_cultivo }}"
-          {% if cultivo.id_cultivo|stringformat:"s" == request.GET.cultivo %}selected{% endif %}>
-          {{ cultivo.descripcion }}
-        </option>
-      {% endfor %}
-    </select>
-    <button type="button"
-            onclick="document.getElementById('modalCrearCultivo').classList.remove('hidden')"
-            class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">
-      Crear Cultivo
-    </button>
-  </div>
+<!-- Selector de cultivo -->
+<div class="mb-4 flex items-center space-x-4">
+  <label for="cultivo"><strong>Cultivo:</strong></label>
+  <select id="cultivo" name="id_cultivo" class="border p-1" required
+          onchange="window.location.href='?cultivo=' + this.value;">
+    <option value="" disabled selected>-- Seleccione un Cultivo --</option>
+    {% for cultivo in cultivos %}
+      <option value="{{ cultivo.id_cultivo }}"
+        {% if cultivo.id_cultivo|stringformat:"s" == request.GET.cultivo %}selected{% endif %}>
+        {{ cultivo.descripcion }}
+      </option>
+    {% endfor %}
+  </select>
+  <button type="button"
+          onclick="document.getElementById('modalCrearCultivo').classList.remove('hidden')"
+          class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">
+    Crear Cultivo
+  </button>
+  <!-- Aquí mostramos el tiempo agrícola del cultivo seleccionado -->
+  {% if cultivo_seleccionado %}
+    <span class="ml-4 text-sm text-gray-700">
+      <strong>Tiempo agrícola:</strong> {{ cultivo_seleccionado.tiempo_agricola }} días
+    </span>
+  {% endif %}
 
-  <div class="flex space-x-4">
+</div>
+
+  <div class="flex space-x-4 text-sm">
   <!-- Panel Agregar Actividad (izquierda) -->
-  <fieldset class="border-2 border-blue-400 rounded-lg p-2 mb-2 w-1/2">
-    <legend class="px-2 text-blue-600 font-semibold">Agregar Actividad</legend>
+  <fieldset class="border-2 border-blue-400 rounded-lg p-2 mb-2 w-1/3">
+    <legend class="px-2 text-blue-600 font-semibold">Agregar Actividad al cultivo </legend>
 
+    <label class="mr-2">Dia inicio:</label>
+    <input type="number" name="dia_inicio" class="border p-1 w-20" required>
+    
     <!-- Línea 1: Actividad -->
     <div class="mb-2">
       <label><strong>Actividad:</strong></label>
@@ -54,15 +64,13 @@
 
     <!-- Línea 2: Frecuencia -->
     <div class="mb-2 flex items-center">
-      <label class="mr-2">Dia de inicio:</label>
-      <input type="number" name="dia_inicio" class="border p-1 w-20" required>
       <span class="mx-2">Frecuencia</span>
       <select name="frecuencia" class="border p-1">
         {% for unidad in unidades %}
           <option value="{{ unidad.id }}">{{ unidad.descripcion }}</option>
         {% endfor %}
       </select>
-      <label class="ml-6 mr-2"><strong>Color:</strong></label>
+      <label class="mr-2">Color:</label>
       <input type="color" name="color" class="border p-1 w-12 h-8" value="#579DA2">
     </div>
 
@@ -79,7 +87,7 @@
           <div class="flex items-center">
             <input type="checkbox" name="insumos" value="{{ insumo.id_insumo }}" class="mr-2">
             <span class="mr-2">{{ insumo.descripcion }}</span>
-            <label class="mr-2"><strong>Cantidad sugerida:</strong></label>
+            <label class="ml-6 mr-2">Cantidad sugerida:</label>
             <input type="number" step="0.01" name="cantidad_{{ insumo.id_insumo }}"
                    placeholder="Cantidad sugerida" class="border p-1 w-24" value="0">
           </div>
@@ -94,19 +102,64 @@
         Crear Insumo
       </button>
     </div>    
-  </fieldset>
-  <!-- Panel Seleccionar Insumos (izquierda) -->
-  <fieldset class="border-2 border-green-400 rounded-lg p-2 mb-2 flex-1">
-    <legend class="px-2 text-green-600 font-semibold">Seleccionar Insumos</legend>
+    <!-- Botón final -->
+    <div class="mt-4">
+      <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">
+        Agregar Actividad al Cultivo
+      </button>
+    </div>  
 
   </fieldset>
+  <!-- Panel derecha: Planeación -->
+  <fieldset class="border-2 border-green-400 rounded-lg p-2 mb-2 flex-1">
+    <legend class="px-2 text-green-600 font-semibold">Planeación (cada 7 dias)</legend>
+    <!-- Botones de navegación -->
+    <div class="p-2">
+      {% if semana_actual > 1 %}
+        <a href="?cultivo={{ cultivo_seleccionado.id_cultivo }}&semana={{ semana_actual|add:"-1" }}"
+          class="bg-gray-200 px-2 py-1 rounded">Anterior</a>
+      {% endif %}
+      <a href="?cultivo={{ cultivo_seleccionado.id_cultivo }}&semana={{ semana_actual|add:"1" }}"
+        class="bg-gray-200 px-2 py-1 rounded">Siguiente</a>
+    </div>
+
+    <table class="w-full border">
+      <thead class="bg-green-100">
+    <!-- titulos-->
+        <tr>
+          <th class="w-12 text-center"></th>
+          <th class="w-12 text-center"></th>
+          <th class="w-12 text-center"></th>
+          <th class="w-12 text-center"></th>
+          <th class="w-12 text-center"></th>
+          <th class="w-12 text-center"></th>
+          <th class="w-12 text-center"></th>
+        </tr>
+              
+      </thead>
+      <tbody>
+        {% for semana in semanas %}
+          <tr>
+            {% for dia in semana %}
+              <td class="h-20 border align-top text-center">
+                {% if dia %}
+                  <div class="text-xs text-left"><strong> dia </strong> {{ dia }}</div>
+                  {% for act in actividades_planeadas %}
+                    {% if act.dia == dia %}
+                      <div style="color: {{ act.actividad.color }}" class="text-xs">
+                        {{ act.actividad.id_actividad.descripcion }}
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </fieldset>
 </div>
-<!-- Botón final -->
-<div class="mt-4">
-  <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">
-    Agregar Actividad al Cultivo
-  </button>
-</div>  
 </form>
 
 <!-- Tabla Actividades del Cultivo -->

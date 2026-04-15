@@ -8,11 +8,43 @@ from ..models import Cultivo,Actividad, CultivoActividad,Insumo,CultivoActividad
 @login_required
 # filtra la tabla
 def parametrizar_cultivo(request):
-    cultivo_id = request.GET.get("cultivo")  # capturamos el cultivo seleccionado
+    cultivo_id = request.GET.get("cultivo")
+    semana_actual = int(request.GET.get("semana", 1))  # semana seleccionada, por defecto 1
     actividades = []
+    cultivo_seleccionado = None
+    semanas = []
+    actividades_planeadas = []
 
     if cultivo_id:
-        actividades = CultivoActividad.objects.filter(id_cultivo = cultivo_id)
+        try:
+            cultivo_seleccionado = Cultivo.objects.get(pk=cultivo_id)
+            actividades = CultivoActividad.objects.filter(id_cultivo=cultivo_seleccionado)
+
+            dias = list(range(1, cultivo_seleccionado.tiempo_agricola + 1))
+            todas_semanas = [dias[i:i+7] for i in range(0, len(dias), 7)]
+
+            # Mostrar solo 5 semanas a partir de la semana_actual
+            inicio = (semana_actual - 1) * 5
+            semanas = todas_semanas[inicio:inicio+5]
+
+            # Calcular actividades_planeadas según frecuencia (como ya lo tienes)
+            for act in actividades:
+                if act.frecuencia.descripcion.lower() == "1 vez":
+                    dias_act = [act.dia_inicio]
+                elif act.frecuencia.descripcion.lower() == "diario":
+                    dias_act = range(act.dia_inicio, cultivo_seleccionado.tiempo_agricola + 1)
+                elif act.frecuencia.descripcion.lower() == "semanal":
+                    dias_act = range(act.dia_inicio, cultivo_seleccionado.tiempo_agricola + 1, 7)
+                elif act.frecuencia.descripcion.lower() == "mensual":
+                    dias_act = range(act.dia_inicio, cultivo_seleccionado.tiempo_agricola + 1, 30)
+                else:
+                    dias_act = [act.dia_inicio]
+
+                for d in dias_act:
+                    actividades_planeadas.append({"dia": d, "actividad": act})
+
+        except Cultivo.DoesNotExist:
+            cultivo_seleccionado = None
 
     context = {
         "cultivos": Cultivo.objects.all(),
@@ -20,9 +52,12 @@ def parametrizar_cultivo(request):
         "unidades": UnidadTiempo.objects.all(),
         "insumos": Insumo.objects.all(),
         "actividades": actividades,
+        "cultivo_seleccionado": cultivo_seleccionado,
+        "semanas": semanas,
+        "semana_actual": semana_actual,
+        "actividades_planeadas": actividades_planeadas,
     }
     return render(request, "parametrizar_cultivo.html", context)
-
 
 @login_required
 def crear_cultivo(request):

@@ -8,7 +8,7 @@
 
 <form method="post">
   {% csrf_token %}
-  <label><strong>Cultivo:</strong></label>
+  <label for="cultivo"><strong>Cultivo:</strong></label>
   <select id="cultivo" name="id_cultivo" class="border p-1" required
           onchange="window.location.href='?cultivo=' + this.value;">
     <option value="" disabled selected>-- Seleccione un Cultivo --</option>
@@ -20,7 +20,7 @@
     {% endfor %}
   </select>
 
-  <label><strong>Zona Agricola:</strong></label>
+  <label for="id_zonaagricola"><strong>Zona Agricola:</strong></label>
   <select id="zonaagricola" name="id_zonaagricola" class="border p-1" required>
     <option value="" disabled selected>-- Seleccione una zona --</option>
     {% for z in zonas %}
@@ -28,7 +28,7 @@
     {% endfor %}
   </select>
 
-  <label><strong>Fecha de inicio:</strong></label>
+  <label for="fecha_inicio"><strong>Fecha de inicio:</strong></label>
   <input type="date" name="fecha_inicio" required>
 
   <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded">
