@@ -23,7 +23,7 @@
         <td class="align-middle">{{ persona.rol }}</td>
         <td class="align-middle">
             <button type="button"
-                    onclick="document.getElementById('modalEditar{{ persona.pk }}').classList.remove('hidden')"
+                    onclick="abrirModal('{{ persona.pk }}')"
                     class="bg-[var(--edit)] hover:bg-[var(--editFocus)] text-[var(--secondary)] px-3 py-1 rounded">
                 Editar
             </button>
@@ -68,34 +68,56 @@
   </div>
 </div>
 
-<!-- Modal Editar -->
-{% for persona in personas %}
-<div id="modalEditar{{ persona.pk }}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+<!-- Modal único para editar persona -->
+<div id="modalEditar" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
   <div class="bg-white rounded-lg shadow-lg w-96 p-6">
     <h2 class="text-xl font-bold mb-4">Editar Personal</h2>
-    <form method="post">
+    <form method="post" id="formEditarPersona">
       {% csrf_token %}
-      <input type="hidden" name="persona_id" value="{{ persona.pk }}">
+      <input type="hidden" name="persona_id" id="personaIdInput">
+
       <strong>Cédula:</strong>
-      <input type="text" value="{{ persona.id_cedula }}" disabled class="border rounded px-3 py-2 w-full mb-2">
+      <input type="text" id="cedulaInput" disabled class="border rounded px-3 py-2 w-full mb-2">
+
       <strong>Nombre:</strong>
-      <input type="text" name="nombre" value="{{ persona.nombre }}" class="border rounded px-3 py-2 w-full mb-2" required>
+      <input type="text" name="nombre" id="nombreInput" class="border rounded px-3 py-2 w-full mb-2" required>
+
       <strong>Teléfono:</strong>
-      <input type="text" name="telefono" value="{{ persona.telefono }}" class="border rounded px-3 py-2 w-full mb-2">
+      <input type="text" name="telefono" id="telefonoInput" class="border rounded px-3 py-2 w-full mb-2">
+
       <strong>Email:</strong>
-      <input type="email" name="email" value="{{ persona.email }}" class="border rounded px-3 py-2 w-full mb-2">
+      <input type="email" name="email" id="emailInput" class="border rounded px-3 py-2 w-full mb-2">
+
       <strong>Rol:</strong>
-      <select name="rol" class="border rounded px-3 py-2 w-full mb-2">
-        <option value="Agricultor" {% if persona.rol == "Agricultor" %}selected{% endif %}>Agricultor</option>
-        <option value="Fumigador" {% if persona.rol == "Fumigador" %}selected{% endif %}>Fumigador</option>
-        <option value="Recolector" {% if persona.rol == "Recolector" %}selected{% endif %}>Recolector</option>
-        <option value="Varios" {% if persona.rol == "Varios" %}selected{% endif %}>Varios</option>
+      <select name="rol" id="rolInput" class="border rounded px-3 py-2 w-full mb-2">
+        <option value="Agricultor">Agricultor</option>
+        <option value="Fumigador">Fumigador</option>
+        <option value="Recolector">Recolector</option>
+        <option value="Varios">Varios</option>
       </select>
       <button type="submit" name="editar_personal" class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">Guardar cambios</button>
-      <button type="button" onclick="document.getElementById('modalEditar{{ persona.pk }}').classList.add('hidden')" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded">Cancelar</button>
+      <button type="button" onclick="document.getElementById('modalEditar').classList.add('hidden')" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded">Cancelar</button>
     </form>
   </div>
 </div>
-{% endfor %}
+<script>
+  function abrirModal(id) {
+    id = parseInt(id); // convertir a número
+    fetch(`/persona/${id}/`) // endpoint que devuelve datos de la persona
+      .then(response => response.json())
+      .then(data => {
+          // Mostrar modal
+          document.getElementById("modalEditar").classList.remove("hidden");
+
+          // Llenar inputs
+          document.getElementById("personaIdInput").value = data.persona.pk;
+          document.getElementById("cedulaInput").value = data.persona.id_cedula;
+          document.getElementById("nombreInput").value = data.persona.nombre;
+          document.getElementById("telefonoInput").value = data.persona.telefono;
+          document.getElementById("emailInput").value = data.persona.email;
+          document.getElementById("rolInput").value = data.persona.rol;
+      });
+  }
+</script>
 
 {% endblock %}
