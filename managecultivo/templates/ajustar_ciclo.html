@@ -4,16 +4,11 @@
 
 {% block dashboard_content %}
 
-<h2 class="text-xl font-bold mb-4 text-[var(--focus)]">Programacion del Ciclo del Cultivo</h2>
-
-<div class="flex items-center mb-4">
-  <span class="ml-4 text-m text-gray-700">
-    <strong>Ciclo de:</strong> {{ ciclo.id_cultivo.descripcion }} 
+<h2 class="text-xl font-bold mb-4 text-[var(--focus)]">Programacion del Ciclo del Cultivo {{ ciclo.id_cultivo.descripcion }} 
     ({{ ciclo.fecha_inicio }} - {{ ciclo.fecha_fin }}) 
-    <strong>Tiempo agrícola:</strong> {{ ciclo.id_cultivo.tiempo_agricola }} días
-    <strong>Zona:</strong> {{ ciclo.id_zonaagricola.nombre }}    
-  </span>
-</div>
+   Tiempo agrícola:{{ ciclo.id_cultivo.tiempo_agricola }} días
+   Zona:{{ ciclo.id_zonaagricola.nombre }} </h2>
+
 <strong>de click en el dia que quiera modificar</strong>
 <div class="flex justify-between items-center mb-2">
   <button onclick="cambiarMes(-1)" class="px-2 py-1 bg-gray-200 rounded">◄</button>
