@@ -6,7 +6,6 @@ from django.contrib.auth import views as auth_views
 # Importa los módulos de vistas
 from managecultivo import views
 
-
 urlpatterns = [
     path('', views.home, name='home'),
     path('password-change/', auth_views.PasswordChangeView.as_view(template_name='password_change.html'), name='password_change'),
@@ -32,12 +31,14 @@ urlpatterns = [
     path("crear_insumo/", views.crear_insumo, name="crear_insumo"),
     path("crear_actividadcultivo/", views.crear_actividadcultivo, name="crear_actividadcultivo"),
     path("borrar_actividadcultivo/<int:pk>/", views.borrar_actividadcultivo, name="borrar_actividadcultivo"),
-    path("planear_ciclo/", views.planear_ciclo, name="planear_ciclo"),
+    path("crear_ciclo/", views.crear_ciclo, name="crear_ciclo"),
     path("compra_insumos/", views.gestionar_insumos, name="compra_insumos"),
     path("clima/", views.clima, name="clima"),
     path("mover_arriba/<int:pk>/", views.mover_arriba, name="mover_arriba"),
     path("mover_abajo/<int:pk>/", views.mover_abajo, name="mover_abajo"),   
     # lo de ciclos 
     path("calendario_ciclo/", views.calendario_ciclo, name="calendario_ciclo"),
-    path('ciclo/<int:pk>/', views.detalle_ciclo, name='detalle_ciclo'),
+    path('crearciclo/<int:pk>/', views.detalle_ciclo, name='detalle_ciclo'),
+    path("ajustar_ciclo/<int:ciclo_id>/", views.ajustar_ciclo, name="ajustar_ciclo"),    
 ]
+

@@ -1,0 +1,304 @@
+{% extends "base_dashboard.html" %}
+
+{% block subnavbar_title %}Programacion de Ciclo del Cultivo{% endblock %}
+
+{% block dashboard_content %}
+
+<h2 class="text-xl font-bold mb-4 text-[var(--focus)]">Programacion del Ciclo del Cultivo</h2>
+
+<div class="flex items-center mb-4">
+  <span class="ml-4 text-m text-gray-700">
+    <strong>Ciclo de:</strong> {{ ciclo.id_cultivo.descripcion }} 
+    ({{ ciclo.fecha_inicio }} - {{ ciclo.fecha_fin }}) 
+    <strong>Tiempo agrícola:</strong> {{ ciclo.id_cultivo.tiempo_agricola }} días
+    <strong>Zona:</strong> {{ ciclo.id_zonaagricola.nombre }}    
+  </span>
+</div>
+<strong>de click en el dia que quiera modificar</strong>
+<div class="flex justify-between items-center mb-2">
+  <button onclick="cambiarMes(-1)" class="px-2 py-1 bg-gray-200 rounded">◄</button>
+  <span class="font-bold text-lg">{{ mes_actual|date:"F Y" }}</span>
+  <button onclick="cambiarMes(1)" class="px-2 py-1 bg-gray-200 rounded">►</button>
+</div>
+
+<!-- Calendario -->
+<table class="w-full border">
+  <thead class="bg-blue-100">
+    <tr>
+      <th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for semana in calendario %}
+      <tr>
+        {% for dia in semana %}
+        <td class="h-24 border align-top p-1 celda"
+            data-dia="{{ dia.fecha|date:'Y-m-d' }}"
+            onclick="mostrarActividades('{{ dia.fecha|date:'Y-m-d' }}')">
+          <div style="color: {% if fecha_seleccionada == dia.fecha %}var(--celdasel){% else %}var(--celdanor){% endif %};
+                      font-size: {% if fecha_seleccionada == dia.fecha %}1.5rem{% else %}1rem{% endif %};
+                      font-weight: bold;">
+            {{ dia.fecha|date:"j" }}
+          </div>
+          {% for act in dia.actividades %}
+            <div style="color: {{ act.color }}" class="text-xs">{{ act.id_actividad.descripcion }}</div>
+          {% endfor %}
+          <button type="button"
+                  onclick="event.stopPropagation(); abrirModalAdd('{{ dia.fecha|date:"Y-m-d" }}')"
+                  class="bg-green-500 text-white text-xs px-2 py-1 mt-1 rounded">Add</button>
+        </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<!-- Tabla de actividades del día -->
+{% if actividades %}
+<div id="tablaDia" class="mt-4">
+  <h2 class="text-xl font-semibold mb-2 text-center">
+    Actividades del Día {{ fecha_seleccionada }}
+  </h2>
+  <table class="w-full border">
+    <thead class="bg-blue-100">
+      <tr>
+        <th>Actividad</th><th>Fecha</th><th>Personas</th><th>Color</th><th>Insumos</th><th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for act in actividades %}
+        <tr>
+          <td>{{ act.id_actividad.descripcion }}</td>
+          <td class="text-center">{{ act.fecha_programada }}</td>
+          <td class="text-center">{{ act.numero_personas }}</td>
+          <td class="text-center">
+            <span class="inline-block w-6 h-6 rounded" style="background-color: {{ act.color }}"></span>
+          </td>
+          <td>
+            {% for insumo in act.fk_CCicloActividadInsumo1.all %}
+              {{ insumo.id_insumo.descripcion }} ({{ insumo.cantidad_utilizada }})<br>
+            {% empty %}-{% endfor %}
+          </td>
+          <td>
+            <form method="post" action="{% url 'ajustar_ciclo' ciclo.id_ciclo %}">
+              {% csrf_token %}
+              <input type="hidden" name="actividad_id" value="{{ act.id }}">
+              <button type="submit" name="borrar_actividad"
+                      class="bg-red-500 text-white px-2 py-1 rounded">Borrar</button>
+              <button type="button" onclick="abrirModalInsumos({{ act.id }})"
+                      class="bg-yellow-500 text-white px-2 py-1 rounded">Insumos</button>
+              <button type="button" onclick="abrirModalPersonal({{ act.id }})"
+                      class="bg-blue-500 text-white px-2 py-1 rounded">Personal</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+<!-- Modal Add Actividad -->
+<div id="modalAdd" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h2 class="text-xl font-bold mb-4">Agregar Actividad</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="fecha" id="fechaAdd">
+      <!-- Mostrar la fecha seleccionada en pantalla -->
+      <label><strong>Fecha seleccionada:</strong></label>
+      <input type="text" id="fechaAddVisible" class="border rounded px-3 py-2 w-full mb-2 bg-gray-100" readonly>
+
+      <label><strong>Actividad:</strong></label>
+      <select name="id_actividad" class="border rounded px-3 py-2 w-full mb-2" required>
+        {% for actividad in actividades_lista %}
+          <option value="{{ actividad.id_actividad }}">{{ actividad.descripcion }}</option>
+        {% endfor %}
+      </select>
+      <label><strong>Número de personas:</strong></label>
+      <input type="number" name="numero_personas" class="border rounded px-3 py-2 w-full mb-2" value ="0" required>
+      <label><strong>Color:</strong></label>
+      <input type="color" name="color" class="border rounded px-3 py-2 w-full mb-2" value="#579DA2">
+      <button type="submit" name="add_actividad" class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">Guardar</button>
+      <button type="button" onclick="document.getElementById('modalAdd').classList.add('hidden')" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Insumos -->
+<div id="modalInsumos" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h2 class="text-xl font-bold mb-4">Editar Insumos</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="actividad_id" id="actividadInsumoId">
+      <div class="mb-2 border rounded p-2 h-40 overflow-y-scroll bg-gray-50">
+        <div class="space-y-2">
+          {% for insumo in insumos %}
+            <div class="flex items-center">
+              <input type="checkbox" name="insumos" value="{{ insumo.id_insumo }}" class="mr-2">
+              <span class="mr-2">{{ insumo.descripcion }}</span>
+              <label class="ml-6 mr-2">Cantidad:</label>
+              <input type="number" step="0.01" name="cantidad_{{ insumo.id_insumo }}" class="border p-1 w-24" value="0">
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <button type="submit" name="editar_insumos" class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded">Guardar</button>
+      <button type="button" onclick="document.getElementById('modalInsumos').classList.add('hidden')" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded">Salir</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Personal -->
+<div id="modalPersonal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h2 class="text-xl font-bold mb-4">Asignar Personal</h2>
+    
+    <form method="post" class="mb-4">
+      {% csrf_token %}
+      <!-- Campo oculto para saber a qué actividad se asigna -->
+      <input type="hidden" name="actividad_id" id="actividadPersonalId">
+
+      <!-- Combobox con todo el personal -->
+      <label class="block mb-2"><strong>Seleccionar personal:</strong></label>
+      <div class="flex space-x-2 mb-2">
+        <select name="id_personal" class="border rounded px-3 py-2 flex-1" required>
+          {% for persona in personal_lista %}
+            <option value="{{ persona.id_cedula }}">
+              {{ persona.nombre }} ({{ persona.rol }})
+            </option>
+          {% endfor %}
+        </select>
+        <button type="submit" name="add_personal"
+                class="bg-blue-500 text-white px-3 py-2 rounded">Agregar</button>
+      </div>
+
+      <button type="button"
+              onclick="document.getElementById('modalPersonal').classList.add('hidden')"
+              class="bg-gray-500 text-white px-3 py-2 rounded">Cerrar</button>
+    </form>
+
+    <!-- Tabla del personal ya asignado -->
+    <h3 class="text-lg font-semibold mt-4">Personal asignado</h3>
+    <table class="w-full border-collapse border border-gray-300 mt-2">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="border px-2 py-1">Nombre</th>
+          <th class="border px-2 py-1">Teléfono</th>
+          <th class="border px-2 py-1">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asignacion in asignaciones  %}
+          <tr>
+            <td class="border px-2 py-1">{{ asignacion.personal.nombre }}</td>
+            <td class="border px-2 py-1">{{ asignacion.personal.telefono }}</td>
+            <td class="border px-2 py-1 text-center">
+              <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="delete_personal_id" value="{{ asignacion.id }}">
+                <button type="submit" name="delete_personal"
+                        class="bg-red-500 text-white px-2 py-1 rounded">Borrar</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3" class="text-center py-2">No hay personal asignado aún.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<script>
+function abrirModalAdd(fecha) {
+  event.stopPropagation();
+  document.getElementById('fechaAdd').value = fecha;          // se envía al servidor
+  document.getElementById('fechaAddVisible').value = fecha;   // se muestra al usuario
+  document.getElementById('modalAdd').classList.remove('hidden');
+}
+</script>
+<script>
+function abrirModalInsumos(actividadId) {
+  document.getElementById("modalInsumos").classList.remove("hidden");
+  document.getElementById("actividadInsumoId").value = actividadId;
+}
+</script>
+<script>
+  function abrirModalPersonal(actividadId) {
+    document.getElementById("modalPersonal").classList.remove("hidden");
+    document.getElementById("actividadPersonalId").value = actividadId;
+  }
+</script>
+
+<script>
+function cambiarMes(delta) {
+  // Tomar el mes actual desde el template
+  const partes = "{{ mes_actual|date:'Y-m' }}".split("-");
+  let year = parseInt(partes[0], 10);
+  let month = parseInt(partes[1], 10);
+
+  // Aplicar el delta (+1 o -1)
+  month += delta;
+
+  // Ajustar año si se pasa de rango
+  if (month < 1) {
+    month = 12;
+    year -= 1;
+  } else if (month > 12) {
+    month = 1;
+    year += 1;
+  }
+
+  // Formatear siempre con dos dígitos
+  const nuevoMes = `${year}-${String(month).padStart(2, '0')}`;
+
+  // Mostrar mensaje en pantalla con Django messages
+  // (si prefieres alert, puedes usar alert(nuevoMes))
+  window.location.href = `?ciclo={{ ciclo.id_ciclo }}&mes=${nuevoMes}`;
+}
+</script>
+
+<script>
+
+function mostrarActividades(fecha) {
+  // Poner todos los números en negro
+  document.querySelectorAll(".numero-dia").forEach(n => {
+    n.style.color = "var(--celdanor)";
+    n.style.fontSize = "1rem";
+  });
+
+  // Buscar el número dentro de la celda seleccionada
+  const celda = document.querySelector(`.celda[data-dia="${fecha}"]`);
+  if (celda) {
+    const numero = celda.querySelector(".numero-dia");
+    if (numero) {
+      numero.style.color = "var(--celdasel)";   // azul
+      numero.style.fontSize = "1.5rem";         // más grande
+    }
+  }
+
+  // Redirigir para mostrar actividades del día
+  window.location.href = `?ciclo={{ ciclo.id_ciclo }}&mes={{ mes_actual|date:'Y-m' }}&fecha=${fecha}`;
+}
+</script>
+
+
+</script>
+
+{% if messages %}
+  <div class="mb-4">
+    {% for message in messages %}
+      <div class="px-4 py-2 rounded 
+                  {% if message.tags == 'error' %} bg-red-100 text-red-700 border border-red-400 
+                  {% elif message.tags == 'success' %} bg-green-100 text-green-700 border border-green-400 
+                  {% else %} bg-gray-100 text-gray-700 border border-gray-400 {% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
+

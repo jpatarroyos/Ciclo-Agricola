@@ -101,20 +101,6 @@ class CompraInsumo(models.Model):
         return f"{self.id_insumo.descripcion} - {self.fecha_compra} - {self.cantidad}"
 
 
-# Ciclo agrícola
-class Ciclo(models.Model):
-    id_ciclo = models.BigAutoField(primary_key=True)
-    id_cultivo = models.ForeignKey(Cultivo, on_delete=models.CASCADE, related_name="fk_ciclo1")
-    id_zonaagricola = models.ForeignKey(ZonaAgricola, on_delete=models.CASCADE, related_name="fk_ciclo2")
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
-    cantidad_produccion = models.FloatField(help_text="Cantidad cosechada en Kg")
-    registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fk_ciclo3")
-
-    def __str__(self):
-        return f"Ciclo de {self.id_cultivo.descripcion} ({self.fecha_inicio} - {self.fecha_fin})"
-
-
 # Personal
 class Personal(models.Model):
     id_cedula = models.CharField(max_length=20, primary_key=True)
@@ -133,6 +119,18 @@ class Personal(models.Model):
     def __str__(self):
         return f"{self.id_cedula} - {self.nombre} ({self.rol})"
 
+# Ciclo agrícola
+class Ciclo(models.Model):
+    id_ciclo = models.BigAutoField(primary_key=True)
+    id_cultivo = models.ForeignKey(Cultivo, on_delete=models.CASCADE, related_name="fk_ciclo1")
+    id_zonaagricola = models.ForeignKey(ZonaAgricola, on_delete=models.CASCADE, related_name="fk_ciclo2")
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+    cantidad_produccion = models.FloatField(help_text="Cantidad cosechada en Kg")
+    registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fk_ciclo3")
+
+    def __str__(self):
+        return f"Ciclo de {self.id_cultivo.descripcion} ({self.fecha_inicio} - {self.fecha_fin})"
 
 # Actividades dentro del ciclo
 class CicloActividad(models.Model):
@@ -155,7 +153,7 @@ class CicloActividadInsumo(models.Model):
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fk_CCicloActividadInsumo3")
 
     def __str__(self):
-        return f"{self.id_insumo.descripcion} usado en {self.actividad_ciclo.id_actividad.descripcion}"
+        return f"{self.id_insumo.descripcion} usado en Actividad {self.actividad_ciclo.id_actividad.descripcion} cultivo {self.actividad_ciclo.id_ciclo.id_cultivo.descripcion} fecha {self.actividad_ciclo.fecha_programada} "
 
 
 # Relación Personal - Ciclo

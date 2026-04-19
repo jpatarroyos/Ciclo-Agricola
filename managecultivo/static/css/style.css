@@ -10,7 +10,8 @@
   --editFocus: #e0ac1d;
   --cancel: #bdb8ae;
   --cancelFocus: #797571;
-
+  --celdasel:#058af7;
+  --celdanor:#0f0f0f;
 }
 
 nav {

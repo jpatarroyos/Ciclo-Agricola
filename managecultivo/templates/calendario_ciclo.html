@@ -19,108 +19,14 @@
         <td class="align-middle">{{ ciclo.fecha_fin }}</td>
         <td class="align-middle">{{ ciclo.registrado_por }}</td>
         <td class="align-middle">
-            <button type="button" onclick="abrirModal({{ ciclo.pk }})"
-                class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded my-2">
-                Detalles
-            </button>
+        <a href="{% url 'ajustar_ciclo' ciclo.id_ciclo %}"
+            class="bg-[var(--primary)] hover:bg-[var(--focus)] text-[var(--secondary)] px-2 py-1 rounded my-2">
+            Detalles
+        </a>
         </td>
     </tr>
     {% endfor %}
 </table>
 
-<!-- Modal de detalles -->
-<div id="modalCiclo" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="cerrarModal()">
 
-    <div class="bg-white w-11/12 max-w-5xl p-4 rounded shadow-lg max-h-[90vh] overflow-scroll" onclick="event.stopPropagation()">
-
-        <div class="flex w-full justify-between">
-            <h3 id="tituloCiclo" class="text-lg font-semibold mt-4 text-[var(--focus)]"></h3>
-
-            <div class="w-1/4 p-2 flex">
-                <button class="bg-green-100 px-2 py-1 rounded mx-4">⬅️ Mes anterior</button>
-                <button class="bg-green-100 px-2 py-1 rounded">➡️ Mes siguiente</button>
-            </div>
-        </div>
-
-        <div class="flex">
-
-            <!-- Calendario -->
-            <div class="w-3/4 p-2">
-                <table class="w-full border">
-                    <thead class="bg-green-100">
-                        <tr>
-                            <th>Lun</th>
-                            <th>Mar</th>
-                            <th>Mié</th>
-                            <th>Jue</th>
-                            <th>Vie</th>
-                            <th>Sáb</th>
-                            <th>Dom</th>
-                        </tr>
-                    </thead>
-                    <tbody id="calendarioBody">
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
-        <button type="button" onclick="document.getElementById('modalCiclo{{ usuario.id }}').classList.add('hidden')" class="bg-[var(--cancel)] hover:bg-[var(--cancelFocus)] text-[var(--secondary)] px-2 py-1 rounded">Cancelar</button>
-
-    </div>
-</div>
-{% endblock %}
-{% block scripts %}
-<script>
-    function abrirModal(id) {
-
-        fetch(`/ciclo/${id}/`)
-            .then(response => response.json())
-            .then(data => {
-
-                document.getElementById("modalCiclo").classList.remove("hidden")
-
-                // titulo
-                document.getElementById("tituloCiclo").textContent =
-                    `Ciclo ${data.ciclo.pk} (${data.ciclo.inicio} - ${data.ciclo.fin})`
-
-                let body = document.getElementById("calendarioBody")
-                body.innerHTML = ""
-
-                data.calendario.forEach(semana => {
-
-                    let row = "<tr>"
-
-                    semana.forEach(dia => {
-
-                        let actividades = ""
-
-                        dia.actividades.forEach(act => {
-                            actividades += `
-                <div class="text-xs">
-                    ${act.actividad}
-                </div>`
-                        })
-
-                        row += `
-            <td class="h-24 align-top border p-1 border-green-300">
-                <div class="text-sm font-bold">
-                    ${new Date(dia.fecha).getDate()}
-                </div>
-                ${actividades}
-            </td>`
-                    })
-
-                    row += "</tr>"
-
-                    body.innerHTML += row
-
-                })
-
-            })
-    }
-
-    function cerrarModal() {
-        document.getElementById("modalCiclo").classList.add("hidden");
-    }
-</script>
 {% endblock %}
